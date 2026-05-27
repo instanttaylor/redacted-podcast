@@ -1,0 +1,656 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Agent flows — how to think about them</title>
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --ink-soft: #555;
+    --ink-faint: #999;
+    --ink-ghost: #c4c0b8;
+    --bg: #fafaf7;
+    --bg-card: #ffffff;
+    --rule: #e6e3dc;
+    --accent: #b9533f;
+    --accent-soft: #f4dfd9;
+    --good: #4a7d4a;
+    --good-soft: #e2eee2;
+    --warn: #b58823;
+    --warn-soft: #f4ead0;
+    --n8n: #4a6da8;
+    --n8n-soft: #dde3ef;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; background: var(--bg); color: var(--ink); }
+  body {
+    font-family: ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+    font-size: 18px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .deck { position: relative; height: 100vh; overflow: hidden; }
+  .slide {
+    position: absolute; inset: 0;
+    display: flex; align-items: flex-start; justify-content: center;
+    padding: 6vh 6vw 8vh;
+    opacity: 0; pointer-events: none;
+    transition: opacity 220ms ease;
+    overflow: auto;
+  }
+  .slide.active { opacity: 1; pointer-events: auto; }
+  .frame { width: 100%; max-width: 820px; }
+  .frame.wide { max-width: 1040px; }
+  .kicker {
+    font-family: ui-sans-serif, system-ui, -apple-system, "Helvetica Neue", sans-serif;
+    font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-family: ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+    font-weight: 600;
+    font-size: 38px;
+    line-height: 1.15;
+    margin: 0 0 18px 0;
+    letter-spacing: -0.01em;
+  }
+  h1 em { font-style: italic; color: var(--accent); }
+  p { margin: 0 0 14px 0; color: var(--ink); }
+  p.lede { font-size: 19px; }
+  p.note { color: var(--ink-soft); font-size: 16px; }
+  strong { font-weight: 600; }
+  code, pre {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 14px;
+  }
+  pre {
+    background: var(--bg-card);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 14px 16px;
+    line-height: 1.5;
+    color: var(--ink);
+    margin: 18px 0;
+    overflow: auto;
+  }
+  .chrome {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 22px;
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-size: 12px;
+    color: var(--ink-faint);
+    border-top: 1px solid var(--rule);
+    background: var(--bg);
+    user-select: none;
+    z-index: 10;
+  }
+  .chrome .counter { font-variant-numeric: tabular-nums; letter-spacing: 0.04em; }
+  .chrome .hint { letter-spacing: 0.06em; text-transform: uppercase; }
+  .chrome .nav { display: flex; gap: 6px; }
+  .chrome button {
+    appearance: none; border: 1px solid var(--rule); background: var(--bg-card);
+    color: var(--ink-soft); font: inherit; padding: 5px 14px; border-radius: 4px;
+    cursor: pointer;
+  }
+  .chrome button:hover { color: var(--ink); border-color: var(--ink-faint); }
+  .chrome button:disabled { opacity: 0.4; cursor: default; }
+  .progress {
+    position: fixed; top: 0; left: 0; height: 2px; background: var(--accent);
+    transition: width 220ms ease;
+    z-index: 11;
+  }
+
+  .compare {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+    margin: 14px 0;
+  }
+  .card {
+    background: var(--bg-card); border: 1px solid var(--rule); border-radius: 6px;
+    padding: 14px 16px;
+  }
+  .card h3 {
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--ink-faint); margin: 0 0 10px 0; font-weight: 600;
+  }
+  .card.bad { background: #fff8f6; border-color: var(--accent-soft); }
+  .card.good { background: #f4f9f4; border-color: var(--good-soft); }
+  .card.bad h3 { color: var(--accent); }
+  .card.good h3 { color: var(--good); }
+  .card ul { margin: 0; padding-left: 18px; color: var(--ink); font-size: 16px; }
+  .card li { margin-bottom: 4px; }
+
+  .tree { font-family: ui-monospace, monospace; font-size: 13px; line-height: 1.55; color: var(--ink); white-space: pre; }
+
+  .pull {
+    border-left: 3px solid var(--accent);
+    padding: 4px 0 4px 16px;
+    margin: 22px 0 0 0;
+    font-size: 22px;
+    line-height: 1.35;
+    color: var(--ink);
+    font-style: italic;
+  }
+  .pull strong { font-style: normal; color: var(--accent); font-weight: 600; }
+
+  /* ====================  DIAL  ==================== */
+  .dial-card {
+    background: var(--bg-card);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 26px 32px 28px;
+    margin: 4px 0 18px;
+  }
+
+  .dial-poles {
+    display: flex; justify-content: space-between;
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 12px;
+  }
+
+  .dial-track-area {
+    position: relative;
+    height: 88px;
+    padding: 0 14px;
+  }
+
+  .dial-track {
+    position: absolute; left: 14px; right: 14px; top: 18px;
+    height: 10px;
+    background: linear-gradient(to right,
+      var(--good-soft) 0%,
+      var(--good-soft) 30%,
+      var(--warn-soft) 55%,
+      var(--accent-soft) 100%);
+    border-radius: 999px;
+    pointer-events: none;
+  }
+
+  .dial-range {
+    position: absolute; left: 0; right: 0; top: 0;
+    width: 100%; height: 50px;
+    -webkit-appearance: none; appearance: none;
+    background: transparent;
+    margin: 0;
+    cursor: grab;
+    z-index: 3;
+  }
+  .dial-range:active { cursor: grabbing; }
+  .dial-range:focus { outline: none; }
+  .dial-range::-webkit-slider-runnable-track { height: 50px; background: transparent; }
+  .dial-range::-moz-range-track { height: 50px; background: transparent; }
+  .dial-range::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--bg-card);
+    border: 2px solid var(--ink);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    margin-top: 9px;
+  }
+  .dial-range::-moz-range-thumb {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--bg-card);
+    border: 2px solid var(--ink);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  }
+
+  .dial-tick {
+    position: absolute; top: 42px;
+    width: 2px; height: 14px;
+    transform: translateX(-50%);
+    background: var(--ink-faint);
+    pointer-events: auto;
+    cursor: pointer;
+    z-index: 1;
+  }
+  .dial-tick-label {
+    position: absolute; top: 60px;
+    transform: translateX(-50%);
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+    white-space: nowrap;
+    cursor: pointer;
+    z-index: 1;
+  }
+  .dial-tick.march { background: var(--ink); }
+  .dial-tick-label.march { color: var(--ink); }
+  .dial-tick.n8n { background: var(--n8n); }
+  .dial-tick-label.n8n { color: var(--n8n); }
+  .dial-tick.today { background: var(--good); }
+  .dial-tick-label.today { color: var(--good); font-weight: 600; }
+  .dial-tick.april { background: var(--accent); }
+  .dial-tick-label.april { color: var(--accent); }
+
+  .dial-status {
+    margin-top: 10px;
+    padding-top: 16px;
+    border-top: 1px solid var(--rule);
+  }
+  .dial-status-label {
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 4px;
+  }
+  .dial-status-headline {
+    font-size: 20px;
+    line-height: 1.3;
+    color: var(--ink);
+    margin: 0;
+  }
+  .dial-status-headline em { color: var(--accent); font-style: italic; }
+
+  .dial-status-detail {
+    margin-top: 8px;
+    color: var(--ink-soft);
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  .dial-lists {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 18px;
+    margin-top: 16px;
+  }
+  .dial-list h3 {
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;
+    margin: 0 0 8px 0;
+    font-weight: 600;
+  }
+  .dial-list.pros h3 { color: var(--good); }
+  .dial-list.cons h3 { color: var(--accent); }
+
+  .dial-list ul {
+    list-style: none; padding: 0; margin: 0;
+  }
+  .dial-list li {
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.4;
+    padding: 4px 0 4px 20px;
+    position: relative;
+    transition: opacity 200ms ease, color 200ms ease, text-decoration-color 200ms ease;
+    color: var(--ink-ghost);
+    text-decoration: line-through;
+    text-decoration-color: var(--ink-ghost);
+    text-decoration-thickness: 1px;
+  }
+  .dial-list li::before {
+    content: "";
+    position: absolute; left: 4px; top: 11px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--ink-ghost);
+    transition: background 200ms ease;
+  }
+  .dial-list li.on {
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .dial-list.pros li.on::before { background: var(--good); }
+  .dial-list.cons li.on::before { background: var(--accent); }
+
+  @media (max-width: 760px) {
+    h1 { font-size: 28px; }
+    body { font-size: 16px; }
+    .compare { grid-template-columns: 1fr; }
+    .dial-lists { grid-template-columns: 1fr; }
+    .dial-card { padding: 20px 18px 22px; }
+  }
+
+  /* ── Site nav (shared) ─────────────────────────────────────────────── */
+  .site-nav { background: var(--bg-card); border-bottom: 1px solid var(--rule); padding: 8px 24px; display: flex; align-items: center; gap: 4px; font-size: 13px; flex-shrink: 0; position: sticky; top: 0; z-index: 100; }
+  .site-nav .brand { font-weight: 700; letter-spacing: -0.01em; margin-right: 16px; color: var(--ink); text-decoration: none; }
+  .site-nav a.nav-link { padding: 6px 12px; border-radius: 6px; color: var(--ink-soft); text-decoration: none; transition: background 0.1s; }
+  .site-nav a.nav-link:hover { background: var(--rule); }
+  .site-nav a.nav-link.active { background: var(--ink); color: var(--bg-card); }
+  .site-nav .spacer { flex: 1; }
+  .site-nav .api-link { font-family: ui-monospace, 'SF Mono', monospace; font-size: 11px; color: var(--ink-faint); text-decoration: none; padding: 4px 8px; border-radius: 4px; border: 1px solid var(--rule); }
+  .site-nav .api-link:hover { color: var(--ink-soft); }
+</style>
+</head>
+<body>
+<!--NAV-->
+<div class="progress" id="progress"></div>
+<div class="deck" id="deck">
+
+<!-- 1 -->
+<section class="slide" data-slide>
+  <div class="frame">
+    <div class="kicker">Slide 1 / 5 — The job</div>
+    <h1>Cleaning up a <em>tangled</em> CRM, one cluster at a time.</h1>
+    <p class="lede">Our CRM has thousands of partner brands, their locations, and the deals that link them. Over time they get duplicated, mis‑parented, and drift out of sync with our internal systems and the live web.</p>
+    <p>The unit of work is a <strong>cluster</strong>: one brand and everything attached to it. Find the mess, propose the fix, write it back. Sounds simple. It isn't.</p>
+    <pre class="tree">BEFORE                          AFTER
+─ Holey Moley (parent)          ─ Holey Moley
+  ├─ Holey Moley Austin           ├─ Holey Moley — Austin
+  ├─ Holey Moley ATX (dup)        ├─ Holey Moley — Round Rock  (was orphan)
+  └─ holey moley round rock       └─ Holey Moley — Cedar Park  (new from web)
+─ holey-moley-rr (orphan)
+─ Holey Moley LLC (dup parent)</pre>
+  </div>
+</section>
+
+<!-- 2 — INTERACTIVE DIAL -->
+<section class="slide" data-slide>
+  <div class="frame wide">
+    <div class="kicker">Slide 2 / 5 — The dial · drag to explore</div>
+    <h1>Every step using an LLM sits somewhere on <em>this dial.</em></h1>
+    <p>The interesting question isn't "AI or not?" — it's <strong>how much of the decision and execution do you delegate at runtime?</strong> Drag the thumb (or click a tick) and watch which trade‑offs apply at each position. The labelled ticks are the three positions this team has actually shipped.</p>
+
+    <div class="dial-card">
+      <div class="dial-poles">
+        <span>← Code drives</span>
+        <span>Agent drives →</span>
+      </div>
+
+      <div class="dial-track-area">
+        <div class="dial-track"></div>
+        <input type="range" min="0" max="100" value="55" class="dial-range" id="dial" aria-label="Decision/execution dial" />
+        <span class="dial-tick march" data-jump="18" style="left: calc(14px + (100% - 28px) * 0.18)"></span>
+        <span class="dial-tick n8n" data-jump="32" style="left: calc(14px + (100% - 28px) * 0.32)"></span>
+        <span class="dial-tick today" data-jump="55" style="left: calc(14px + (100% - 28px) * 0.55)"></span>
+        <span class="dial-tick april" data-jump="88" style="left: calc(14px + (100% - 28px) * 0.88)"></span>
+        <span class="dial-tick-label march" data-jump="18" style="left: calc(14px + (100% - 28px) * 0.18)">March</span>
+        <span class="dial-tick-label n8n" data-jump="32" style="left: calc(14px + (100% - 28px) * 0.32)">n8n</span>
+        <span class="dial-tick-label today" data-jump="55" style="left: calc(14px + (100% - 28px) * 0.55)">Today</span>
+        <span class="dial-tick-label april" data-jump="88" style="left: calc(14px + (100% - 28px) * 0.88)">April attempt</span>
+      </div>
+
+      <div class="dial-status">
+        <div class="dial-status-label" id="status-label">Position</div>
+        <p class="dial-status-headline" id="status-headline">—</p>
+        <p class="dial-status-detail" id="status-detail"></p>
+      </div>
+
+      <div class="dial-lists">
+        <div class="dial-list pros">
+          <h3>Pros</h3>
+          <ul id="pros-list"></ul>
+        </div>
+        <div class="dial-list cons">
+          <h3>Cons</h3>
+          <ul id="cons-list"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 — WHY NOT n8n -->
+<section class="slide" data-slide>
+  <div class="frame wide">
+    <div class="kicker">Slide 3 / 5 — The obvious objection</div>
+    <h1>Why not just build this in <em>n8n?</em></h1>
+    <p class="lede"><strong>Honest answer: most of the time, you should.</strong> n8n is the obvious place for this kind of work — visual workflows, queues, retries, wait‑and‑resume, all out of the box. We use it elsewhere. The question is where it stops being a good fit.</p>
+    <div class="compare">
+      <div class="card good">
+        <h3>n8n wins when…</h3>
+        <ul>
+          <li>The flow is "fetch X, classify with one LLM call, write back" — 1:1 nodes you already have</li>
+          <li>You want non‑engineers editing prompts in a browser</li>
+          <li>You want visible run history and node outputs in a browser</li>
+          <li>You need wait‑and‑resume durability for days, not minutes</li>
+          <li>The team is bigger than one person</li>
+          <li>You don't want to maintain a runtime</li>
+        </ul>
+      </div>
+      <div class="card bad">
+        <h3>It hits a wall when…</h3>
+        <ul>
+          <li>Multi‑turn agent sessions need pause / resume / mid‑run operator chat</li>
+          <li>Pipelines need state checkpoints, replay‑from‑step, supervisor fan‑out</li>
+          <li>You want prompt cache hits across sibling LLM calls (real $)</li>
+          <li>You want unit tests and fixture‑based integration tests on the logic</li>
+          <li>The flow grows past ~100 nodes — visual programming stops scaling</li>
+          <li>You need the same prompt template forked 5 ways without copy‑paste rot</li>
+        </ul>
+      </div>
+    </div>
+    <p class="pull">The complexity is in the problem. n8n makes it <em>visible</em>; code makes it <strong>composable</strong>. Pick by which side of that trade you actually need.</p>
+  </div>
+</section>
+
+<!-- 4 — TYPED CONTRACTS -->
+<section class="slide" data-slide>
+  <div class="frame">
+    <div class="kicker">Slide 4 / 5 — The breakthrough</div>
+    <h1>Stop asking the model for prose. <em>Ask for a schema.</em></h1>
+    <p>The architect step — the part that proposes the fix — used to emit a paragraph of recommendations. We replaced that with <strong>validated JSON</strong>:</p>
+<pre>type Op =
+  | { verb: "consolidate"; from: Id; into: Id; reason: string }
+  | { verb: "set_parent";  parent: Id; child: Id; reason: string }
+  | { verb: "create_rl";   address: string; company: Id; reason: string }
+  | { verb: "archive";     id: Id; reason: string }
+  | ...
+
+interface StructureOutput {
+  before: TreeSnapshot;
+  after:  TreeSnapshot;
+  ops:    Op[];
+}</pre>
+    <p>TypeScript deterministically renders the markdown the next stage reads. Same shape every run, regardless of how the model phrased itself. <strong>This is what moves the dial from the failed April position to the working "Today" position.</strong></p>
+  </div>
+</section>
+
+<!-- 4 — TODAY -->
+<section class="slide" data-slide>
+  <div class="frame">
+    <div class="kicker">Slide 5 / 5 — Today</div>
+    <h1>Typed plan in. Agent executes <em>turn by turn.</em></h1>
+    <p>The fix step is now an agent. It runs the <strong>same bash scripts the March code ran</strong> — but it calls them as tools, reads the live system between writes, and pauses to ask a human when reality doesn't match the plan.</p>
+    <div class="compare">
+      <div class="card bad">
+        <h3>March</h3>
+        <ul>
+          <li>Code freezes a plan from stale data</li>
+          <li>Bash executes blind</li>
+          <li>One shot, no adaptation</li>
+        </ul>
+      </div>
+      <div class="card good">
+        <h3>Today</h3>
+        <ul>
+          <li>Typed plan in, validated</li>
+          <li>Agent reads live state between writes</li>
+          <li>Pauses to ask when surprised</li>
+        </ul>
+      </div>
+    </div>
+    <p class="pull">The question isn't <em>"is the agent in charge?"</em> It's <strong>what shape is the contract between the typed plan and the live tools?</strong> Get that right and the agent is reliable. Get it wrong and no model size will save you.</p>
+  </div>
+</section>
+
+</div>
+
+<div class="chrome">
+  <span class="counter" id="counter">1 / 5</span>
+  <span class="hint">←  →  arrows to navigate</span>
+  <span class="nav">
+    <button id="prev" type="button">Prev</button>
+    <button id="next" type="button">Next</button>
+  </span>
+</div>
+
+<script>
+(function () {
+  const slides = Array.from(document.querySelectorAll('[data-slide]'));
+  const counter = document.getElementById('counter');
+  const progress = document.getElementById('progress');
+  const prevBtn = document.getElementById('prev');
+  const nextBtn = document.getElementById('next');
+  let i = 0;
+
+  function render() {
+    slides.forEach((s, idx) => s.classList.toggle('active', idx === i));
+    counter.textContent = (i + 1) + ' / ' + slides.length;
+    progress.style.width = (((i + 1) / slides.length) * 100) + '%';
+    prevBtn.disabled = i === 0;
+    nextBtn.disabled = i === slides.length - 1;
+    history.replaceState(null, '', '#' + (i + 1));
+  }
+
+  function go(delta) {
+    const next = i + delta;
+    if (next < 0 || next >= slides.length) return;
+    i = next; render();
+  }
+
+  nextBtn.addEventListener('click', () => go(1));
+  prevBtn.addEventListener('click', () => go(-1));
+
+  document.addEventListener('keydown', (e) => {
+    const tag = (e.target && e.target.tagName) || '';
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); go(1); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); go(-1); }
+    else if (e.key === 'Home') { i = 0; render(); }
+    else if (e.key === 'End') { i = slides.length - 1; render(); }
+  });
+
+  // No click-to-advance — too easy to fire by accident on the dial. Use arrows or Next.
+
+  const fromHash = parseInt((location.hash || '').replace('#', ''), 10);
+  if (!Number.isNaN(fromHash) && fromHash >= 1 && fromHash <= slides.length) i = fromHash - 1;
+  render();
+
+  /* ============ DIAL ============ */
+  // Each item has a [lo, hi] range of dial positions where it's "on" (active).
+  const PROS = [
+    { label: "Fully deterministic",                              range: [0, 18] },
+    { label: "Cheap to run",                                     range: [0, 35] },
+    { label: "Trivial to test on fixtures",                      range: [0, 25] },
+    { label: "Fastest path for standard SaaS glue flows",        range: [18, 42] },
+    { label: "Pipeline stays predictable",                       range: [10, 50] },
+    { label: "Stored step outputs help inspection",              range: [0, 65] },
+    { label: "Visible execution history and per-node outputs",   range: [22, 48] },
+    { label: "Queues, retries, and wait/resume are native",      range: [28, 48] },
+    { label: "Non-engineers can inspect simple flows",           range: [25, 45] },
+    { label: "AI/agent steps can be bounded by workflow rails",  range: [30, 52] },
+    { label: "Model handles fuzzy reasoning",                    range: [18, 100] },
+    { label: "Same shape every run — downstream can rely on it", range: [40, 65] },
+    { label: "Targeted retries when one section is bad",         range: [40, 70] },
+    { label: "Reads live state between writes",                  range: [40, 100] },
+    { label: "Pauses to ask a human when surprised",             range: [40, 75] },
+    { label: "Handles cases nobody anticipated",                 range: [60, 100] },
+    { label: "Maximum flexibility",                              range: [75, 100] }
+  ];
+
+  const CONS = [
+    { label: "Can't handle ambiguity at all",                    range: [0, 15] },
+    { label: "Every edge case needs a code path",                range: [0, 25] },
+    { label: "Plans built from a stale snapshot",                range: [0, 24] },
+    { label: "Bash executes blind — no awareness of live state", range: [0, 24] },
+    { label: "No way to react when reality differs at write",    range: [0, 24] },
+    { label: "Prose output is a moving target — parsing breaks", range: [18, 42] },
+    { label: "Complex branching turns into canvas sprawl",       range: [30, 55] },
+    { label: "Contracts drift unless schemas are enforced deliberately", range: [28, 60] },
+    { label: "Debugging gets hard once data hops across many nodes", range: [30, 62] },
+    { label: "Prompt/template reuse across variants gets awkward", range: [32, 60] },
+    { label: "Fixture-based unit tests are harder than plain TypeScript", range: [28, 62] },
+    { label: "Prompt-cache sharing across sibling calls is hard to control", range: [35, 65] },
+    { label: "Mid-run operator chat is possible, but not the native shape", range: [38, 68] },
+    { label: "Requires real schema design upfront",              range: [40, 70] },
+    { label: "More moving parts than a pure pipeline",           range: [35, 100] },
+    { label: "Costs more per run",                               range: [40, 100] },
+    { label: "No stable contract — runs diverge",                range: [65, 100] },
+    { label: "Tool surface bloats system prompt 10×+",           range: [65, 100] },
+    { label: "Hard to debug — \"why did it do that\" has no answer", range: [60, 100] }
+  ];
+
+  const ZONES = [
+    { max: 14, name: "Code only",
+      headline: "Pure code, no model at runtime.",
+      detail: "Every decision is hard‑coded. The LLM, if it shows up at all, was a tool you used at design time." },
+    { max: 42, name: "Workflow/code drives; LLM acts in bounded steps",
+      headline: "Code orchestrates. The model gives <em>opinions in plain English.</em>",
+      detail: "A pipeline calls the LLM at specific points to summarize, classify, or recommend. Code parses the response and acts on it. The model never touches the outside world." },
+    { max: 65, name: "Typed contract, agent executes",
+      headline: "Code asks for a <em>schema.</em> Agent executes against live state.",
+      detail: "The model emits validated JSON for the plan. A constrained agent reads that plan and uses tools to apply it, turn by turn, with live access. It can pause and ask a human when surprised." },
+    { max: 100, name: "Agent drives end‑to‑end",
+      headline: "Hand the model a goal and a pile of tools. <em>Hope.</em>",
+      detail: "No structured plan, no contract. The agent decides what to do, calls whatever tools it wants, reasons across all of it in one session." }
+  ];
+
+  const TICKS = {
+    march: { value: 18, label: "MARCH",
+      headline: "Code drives. LLM advises in prose. Bash executes the plan blind.",
+      detail: "Linear pipeline. LLM emits a prose plan. Code parses, then bash scripts write the changes. Human approves between plan and execute. Felt good. Couldn't ship a real cleanup." },
+    n8n: { value: 32, label: "n8n & FRIENDS",
+      headline: "Workflow owns the rails. LLM/agent nodes are bounded steps.",
+      detail: "Great for SaaS glue, fetch-classify-write flows, visual traces, queues, retries, and wait/resume. It stops being the best fit when the hard part is a reusable typed plan contract, fixture-tested logic, prompt-cache sharing across sibling calls, or many near-identical prompt/tool variants." },
+    today: { value: 55, label: "TODAY",
+      headline: "Typed plan in. Agent runs the same bash scripts — turn by turn, with live reads.",
+      detail: "Architect emits validated JSON. The reconcile agent runs the same scripts March used, but as Agent SDK tools. Reads live state between writes. Calls clarify_confusion when reality doesn't match the plan." },
+    april: { value: 88, label: "APRIL ATTEMPT",
+      headline: "Tried to give an agent a goal and the tools. <em>It didn't work.</em>",
+      detail: "No stable contract. Tool surface ballooned the system prompt 10×. The bridge to live tools wasn't wired right. Seven days of silence followed before the rebuild." }
+  };
+
+  const dial = document.getElementById('dial');
+  const statusLabel = document.getElementById('status-label');
+  const statusHeadline = document.getElementById('status-headline');
+  const statusDetail = document.getElementById('status-detail');
+  const prosList = document.getElementById('pros-list');
+  const consList = document.getElementById('cons-list');
+
+  function renderList(host, items) {
+    host.innerHTML = items.map((it, idx) =>
+      `<li data-idx="${idx}">${it.label}</li>`
+    ).join('');
+  }
+  renderList(prosList, PROS);
+  renderList(consList, CONS);
+
+  function zoneAt(value) {
+    for (const z of ZONES) if (value <= z.max) return z;
+    return ZONES[ZONES.length - 1];
+  }
+  function tickNear(value) {
+    let best = null;
+    for (const key of Object.keys(TICKS)) {
+      const t = TICKS[key];
+      const dist = Math.abs(value - t.value);
+      if (dist <= 2 && (!best || dist < best.dist)) best = { key, dist, ...t };
+    }
+    return best;
+  }
+
+  function update() {
+    const v = Number(dial.value);
+    const z = zoneAt(v);
+    const t = tickNear(v);
+
+    statusLabel.textContent = t ? t.label : z.name;
+    statusHeadline.innerHTML = t ? t.headline : z.headline;
+    statusDetail.innerHTML = t ? t.detail : (z.detail || '');
+
+    Array.from(prosList.children).forEach((li, idx) => {
+      const inRange = v >= PROS[idx].range[0] && v <= PROS[idx].range[1];
+      li.classList.toggle('on', inRange);
+    });
+    Array.from(consList.children).forEach((li, idx) => {
+      const inRange = v >= CONS[idx].range[0] && v <= CONS[idx].range[1];
+      li.classList.toggle('on', inRange);
+    });
+  }
+
+  dial.addEventListener('input', update);
+  document.querySelectorAll('[data-jump]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dial.value = el.getAttribute('data-jump');
+      update();
+    });
+  });
+  update();
+})();
+</script>
+</body>
+</html>

@@ -8,14 +8,9 @@ If you're using AI in genuinely interesting ways to automate or run your busines
 
 Pick your **function** (row) and your **team size** (column). If you land anywhere on this grid, you're exactly who we want on the show — where you land just shapes what we dig into.
 
-|              | Under 10 | 10–50 | 50–100 | 100+ |
-| ------------ | :------: | :---: | :----: | :--: |
-| **Sales**    |    ✅    |  ✅   |   ✅   |  ✅  |
-| **Design**   |    ✅    |  ✅   |   ✅   |  ✅  |
-| **Marketing**|    ✅    |  ✅   |   ✅   |  ✅  |
-| **Finance**  |    ✅    |  ✅   |   ✅   |  ✅  |
-| **Ops**      |    ✅    |  ✅   |   ✅   |  ✅  |
-| **Support**  |    ✅    |  ✅   |   ✅   |  ✅  |
+<p align="center">
+  <img src="assets/guest-grid.png" alt="Guest grid: function (rows) by team size (columns), every slot open" width="860">
+</p>
 
 Two things matter more than the grid:
 

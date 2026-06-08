@@ -30,6 +30,8 @@ Two things matter more than the grid:
 - Booked **at least a couple weeks in advance**
 - Taylor will reach out and ask some questions + find a good timeslot + book if it's a good fit.
 
+Already booked? [`guest-prep.md`](guest-prep.md) walks through what to expect — what we're thinking about while you present, the day-of flow, and how the live redacting works.
+
 ## How to pitch
 
 Email **[contact@tweenerfund.com](mailto:contact@tweenerfund.com?subject=%5BREDACTED%5D%20Podcast%20Guest)** (subject: `[REDACTED] Podcast Guest`) with:

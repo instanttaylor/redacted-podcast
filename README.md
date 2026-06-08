@@ -16,8 +16,9 @@ Each episode gets a numbered folder. Open it for that episode's files and a link
 | --- | ------- | ------ |
 | 1   | What Happens When You Rebuild a Business With AI | [`001-rebuild-business-with-ai/`](001-rebuild-business-with-ai/) |
 | 2   | The AI Workflow Graveyard: CRMs, Agents, and... Tamagotchis? | [`002-ai-workflow-graveyard/`](002-ai-workflow-graveyard/) |
+| 3   | A Sentient HubSpot for $2 a Brand | [`003-sentient-hubspot/`](003-sentient-hubspot/) |
 
-Folders `003/`–`015/` are pre-created stubs; each gets a title-slug name once the episode airs.
+Folders `004/`–`015/` are pre-created stubs; each gets a title-slug name once the episode airs.
 
 ## License
 

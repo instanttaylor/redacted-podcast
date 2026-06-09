@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/logo-dark.jpg" alt="[Redacted] — A NC Tweener Talks Show" width="760">
+  <img src="assets/redacted-logo.gif" alt="[Redacted] — A NC Tweener Talks Show" width="760">
 </p>
 
 <p align="center">

@@ -1,0 +1,1958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Offline Accountability Chart — July 1, 2024</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Source+Code+Pro:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F7F5F2;
+    --card-bg: #FFFFFF;
+    --card-border: #E8E5E0;
+    --text-primary: #2D2A26;
+    --text-secondary: #4A4642;
+    --text-muted: #8A857D;
+    --text-faint: #B5B0A8;
+    --accent: #5B7B6A;
+    --ai-accent: #2F6F4F;
+    --ai-accent-bg: #E8F1EC;
+    --manual-accent: #B07A4A;
+    --manual-accent-bg: #F3EAE0;
+    --paused-accent: #9B968E;
+    --paused-accent-bg: #EFEDE9;
+    --divider-light: #E8E5E0;
+    --hiring-bg: #F7F5F2;
+    --sidebar-width: 380px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    background: var(--bg);
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+    height: 100vh;
+  }
+  #viewport {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    cursor: grab;
+    background: var(--bg);
+  }
+  #viewport.grabbing { cursor: grabbing; }
+  #canvas {
+    position: absolute;
+    top: 0; left: 0;
+    transform-origin: 0 0;
+  }
+  #canvas.panning { will-change: transform; }
+  .hud {
+    position: fixed;
+    bottom: 20px; left: 20px;
+    display: flex; gap: 8px;
+    font-family: 'Source Code Pro', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    z-index: 20;
+  }
+  .hud button {
+    background: var(--card-bg);
+    border: 1px solid var(--divider-light);
+    color: var(--text-muted);
+    font-family: 'Source Code Pro', monospace;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .hud button:hover { border-color: var(--accent); color: var(--accent); }
+  .hud .zoom-readout {
+    background: var(--card-bg);
+    border: 1px solid var(--divider-light);
+    padding: 6px 12px;
+    min-width: 64px;
+    text-align: center;
+  }
+  .card {
+    position: absolute;
+    width: 220px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 2px;
+    padding: 12px;
+    box-sizing: border-box;
+    font-size: 12px;
+    line-height: 1.5;
+    font-family: 'JetBrains Mono', monospace;
+    cursor: pointer;
+    transition: border-color 0.2s, opacity 0.3s, box-shadow 0.2s;
+  }
+  .card:hover { border-color: var(--accent); }
+  .card.selected {
+    border-color: var(--ai-accent);
+    box-shadow: 0 0 0 2px var(--ai-accent-bg);
+  }
+  /* Episode-highlight mode */
+  body.highlight-mode .card { opacity: 0.25; }
+  body.highlight-mode .card.ep-highlighted { opacity: 1; }
+  body.highlight-mode .card.ep-highlighted {
+    border-color: var(--ai-accent);
+    box-shadow: 0 0 0 2px var(--ai-accent-bg);
+  }
+  body.highlight-mode .card.ep-conductor {
+    border: 2px solid var(--ai-accent);
+  }
+  body.highlight-mode svg.connectors path { opacity: 0.08 !important; }
+  .card.hiring {
+    background: var(--hiring-bg);
+    border: 1px dashed var(--accent);
+  }
+  /* Seat-level paused — faded when the Paused label is OFF; toggling Paused
+     ON brings the box back to full opacity (and shows its badge). */
+  body.hide-paused .card.seat-paused { opacity: 0.5; }
+  /* While a paused box is faded, hide its inner status badges too — they're
+     distracting bleeding through the transparency. They return when Paused is
+     toggled on and the box comes back to full opacity. */
+  body.hide-paused .card.seat-paused .acc-ai-mark,
+  body.hide-paused .card.seat-paused .acc-manual-mark,
+  body.hide-paused .card.seat-paused .acc-paused-mark { display: none; }
+  .card-header { margin-bottom: 8px; }
+  .who .title {
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--text-primary);
+    letter-spacing: -0.2px;
+    line-height: 1.25;
+  }
+  .who .name {
+    font-family: 'Source Code Pro', monospace;
+    font-weight: 400;
+    font-size: 11px;
+    color: var(--text-faint);
+    letter-spacing: 0.3px;
+    margin-top: 4px;
+  }
+  .market {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .section-label {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-top: 8px;
+    margin-bottom: 4px;
+  }
+  .accountabilities {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+  .accountabilities li {
+    padding: 2px 0;
+    padding-left: 10px;
+    position: relative;
+    line-height: 1.45;
+  }
+  .accountabilities li::before {
+    content: '›';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .acc-ai-mark,
+  .acc-manual-mark,
+  .acc-paused-mark {
+    display: inline-block;
+    font-family: 'Source Code Pro', monospace;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    color: #fff;
+    background: var(--ai-accent);
+    padding: 1px 6px;
+    border-radius: 1px;
+    margin-left: 6px;
+    text-transform: uppercase;
+    vertical-align: 1px;
+  }
+  /* MANUAL = still human: solid clay */
+  .acc-manual-mark { background: var(--manual-accent); }
+  /* PAUSED = dormant: hollow grey */
+  .acc-paused-mark {
+    background: transparent;
+    color: var(--paused-accent);
+    border: 1px solid var(--paused-accent);
+    padding: 0 5px;
+  }
+  /* A wholly-paused accountability line fades when Paused is OFF. */
+  body.hide-paused .accountabilities li.paused { opacity: 0.5; }
+  /* Light "moved here" provenance affordance — not a work-state badge. */
+  .acc-moved-mark {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 9px;
+    letter-spacing: 0.5px;
+    color: var(--text-faint);
+    margin-left: 6px;
+    white-space: nowrap;
+  }
+  .kpis {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+  .meta {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 10px;
+    color: var(--text-faint);
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid var(--divider-light);
+    letter-spacing: 0.3px;
+    line-height: 1.5;
+  }
+  .hiring .who .title { color: var(--accent); }
+  .hiring .who .name { color: var(--accent); letter-spacing: 1.5px; text-transform: uppercase; }
+  svg.connectors { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 0; }
+  .card { z-index: 1; }
+  .header-banner {
+    position: fixed;
+    top: 20px; left: 20px;
+    font-family: 'Source Code Pro', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    padding: 8px 14px;
+    background: var(--card-bg);
+    border: 1px solid var(--divider-light);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    z-index: 20;
+  }
+  .header-banner .accent { color: var(--accent); }
+  .header-banner .mode-tab { cursor: pointer; color: var(--text-faint); transition: color 0.2s; }
+  .header-banner .mode-tab:hover { color: var(--accent); }
+  .header-banner .mode-tab.active { color: var(--text-primary); }
+  /* Org mode: contractors / non-FTE read as a dashed box + a small tag. */
+  .card.contractor { border-style: dashed; }
+  .emp-tag {
+    display: inline-block;
+    margin-left: 8px;
+    font-family: 'Source Code Pro', monospace;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    border: 1px solid var(--divider-light);
+    padding: 1px 5px;
+    border-radius: 1px;
+  }
+
+  /* ─── Top-right control stack ─── */
+  .controls-tray {
+    position: fixed;
+    top: 20px; right: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 18px;
+    z-index: 20;
+  }
+  .ep-pill-tray, .label-toggle-tray {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+  }
+  .label-toggle-tray .tray-label,
+  .ep-pill-tray .tray-label {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+  .ep-pill {
+    background: var(--card-bg);
+    border: 1px solid var(--divider-light);
+    color: var(--text-secondary);
+    font-family: 'Source Code Pro', monospace;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s, color 0.2s;
+  }
+  .ep-pill:hover { border-color: var(--ai-accent); color: var(--ai-accent); }
+  .ep-pill.active {
+    background: var(--ai-accent);
+    border-color: var(--ai-accent);
+    color: #fff;
+  }
+  .ep-pill .pill-tag {
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    color: var(--text-faint);
+    margin-right: 8px;
+    text-transform: uppercase;
+  }
+  .ep-pill.active .pill-tag { color: rgba(255,255,255,0.7); }
+
+  /* ─── Label-visibility toggles ───
+     One toggle per status label. ON shows the badge in its own color;
+     OFF hides every badge of that status (bullets + text untouched).
+     Generalized — add a row to STATUS_TOGGLES to wire another label. */
+  .label-toggle {
+    background: var(--card-bg);
+    border: 1px solid var(--divider-light);
+    color: var(--text-faint);
+    font-family: 'Source Code Pro', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 7px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s, color 0.2s, opacity 0.2s;
+  }
+  .label-toggle .toggle-state {
+    font-size: 9px;
+    letter-spacing: 1px;
+    margin-left: 8px;
+    opacity: 0.7;
+  }
+  .label-toggle.on { color: var(--text-primary); border-color: var(--text-muted); }
+  .label-toggle.off { opacity: 0.6; }
+
+  /* Hiding a label removes only its badges, everywhere it appears. */
+  body.hide-ai     .acc-ai-mark,     body.hide-ai     .sb-aified-badge { display: none; }
+  body.hide-manual .acc-manual-mark, body.hide-manual .sb-manual-badge { display: none; }
+  body.hide-paused .acc-paused-mark, body.hide-paused .sb-paused-badge { display: none; }
+
+  /* ─── Sidebar (right edge) ─── */
+  .sidebar {
+    position: fixed;
+    top: 0; right: 0;
+    width: var(--sidebar-width);
+    height: 100vh;
+    background: var(--card-bg);
+    border-left: 1px solid var(--card-border);
+    z-index: 30;
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+    overflow-y: auto;
+    padding: 32px 28px 60px;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar .close-btn {
+    position: absolute;
+    top: 14px; right: 14px;
+    background: transparent;
+    border: none;
+    font-family: 'Source Code Pro', monospace;
+    font-size: 14px;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 6px 10px;
+    transition: color 0.2s;
+  }
+  .sidebar .close-btn:hover { color: var(--text-primary); }
+
+  .sb-seat-label {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  /* Per-role section header inside a person's (org-mode) sidebar */
+  .sb-role-label {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin: 26px 0 6px;
+  }
+  .sb-title {
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+  }
+  .sb-occupant {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 13px;
+    color: var(--text-secondary);
+    letter-spacing: 0.3px;
+  }
+  .sb-meta {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 11px;
+    color: var(--text-faint);
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--divider-light);
+    letter-spacing: 0.5px;
+    line-height: 1.7;
+  }
+
+  .sb-ep-banner {
+    background: var(--ai-accent-bg);
+    border-left: 2px solid var(--ai-accent);
+    padding: 10px 12px;
+    margin-top: 18px;
+    border-radius: 1px;
+  }
+  .sb-ep-banner .ep-tag {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    color: var(--ai-accent);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .sb-ep-banner .ep-text {
+    font-size: 12px;
+    color: var(--text-primary);
+    line-height: 1.5;
+  }
+  .sb-ep-banner .ep-text strong { font-weight: 600; }
+
+  .sb-acc-block {
+    margin-top: 28px;
+  }
+  .sb-acc-row {
+    border-top: 1px solid var(--divider-light);
+    padding: 16px 4px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .sb-acc-row:first-of-type { border-top: 1px solid var(--accent); }
+  .sb-acc-row:last-of-type { border-bottom: 1px solid var(--divider-light); }
+  .sb-acc-row:hover .sb-acc-name { color: var(--accent); }
+  .sb-acc-name {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-primary);
+    letter-spacing: -0.2px;
+    transition: color 0.2s;
+  }
+  .sb-sub-items {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .sb-sub-items.revealed { max-height: 800px; }
+  .sb-sub-item {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 7px 0 7px 4px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.55;
+  }
+  .sb-sub-item:first-child { padding-top: 12px; }
+  .sb-sub-item .arrow {
+    font-family: 'Source Code Pro', monospace;
+    color: var(--accent);
+    flex-shrink: 0;
+    font-size: 12px;
+  }
+  .sb-sub-item.aified .arrow { color: var(--ai-accent); }
+  .sb-sub-item.aified .sub-name {
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  /* MANUAL subtask — still human-held */
+  .sb-sub-item.manual .arrow { color: var(--manual-accent); }
+  .sb-sub-item.manual .sub-name {
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  /* PAUSED subtask — kept on the record, not active.
+     Strike only the name, never the badge sitting next to it. */
+  body.hide-paused .sb-sub-item.paused { opacity: 0.5; }
+  .sb-sub-item.paused .arrow { color: var(--paused-accent); }
+  .sb-sub-item.paused .sub-name {
+    text-decoration: line-through;
+    text-decoration-thickness: 1px;
+    text-decoration-color: var(--paused-accent);
+  }
+  /* A wholly-paused accountability row in the side panel fades when Paused is OFF */
+  body.hide-paused .sb-acc-row.paused .sb-acc-name { opacity: 0.5; }
+  .sb-aified-badge,
+  .sb-manual-badge,
+  .sb-paused-badge {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    color: #fff;
+    background: var(--ai-accent);
+    border: 1px solid var(--ai-accent);
+    padding: 2px 7px;
+    border-radius: 1px;
+    margin-left: 8px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .sb-manual-badge { background: var(--manual-accent); border-color: var(--manual-accent); }
+  .sb-paused-badge {
+    background: transparent;
+    color: var(--paused-accent);
+    border-color: var(--paused-accent);
+  }
+  .sb-sub-note {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 10px;
+    color: var(--ai-accent);
+    padding: 2px 0 2px 22px;
+    letter-spacing: 0.3px;
+    line-height: 1.5;
+  }
+  .sb-sub-note.manual { color: var(--manual-accent); }
+  .sb-sub-note.paused { color: var(--paused-accent); }
+  /* "Moved here" affordance in the side panel — light, italic provenance note. */
+  .sb-moved-mark {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    color: var(--text-faint);
+    margin-left: 8px;
+    white-space: nowrap;
+  }
+  .sb-moved-note {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 10px;
+    color: var(--text-faint);
+    font-style: italic;
+    letter-spacing: 0.3px;
+    padding: 4px 0 0 4px;
+  }
+  /* "Covered on" episode links under a subtask */
+  .sb-ep-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+    padding: 4px 0 2px 22px;
+  }
+  .sb-ep-links-label {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+  .sb-ep-link {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: var(--ai-accent);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s;
+  }
+  a.sb-ep-link:hover { border-bottom-color: var(--ai-accent); }
+  .sb-ep-link.disabled { color: var(--text-faint); font-weight: 400; cursor: default; }
+  .sb-ep-link .ep-link-state { letter-spacing: 0.3px; }
+  .sb-kpis {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid var(--divider-light);
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+  }
+  .sb-kpis .label {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+</style>
+</head>
+<body>
+<div class="header-banner"><span class="mode-tab active" id="tab-accountability" onclick="switchMode('accountability')">Accountability</span> <span class="mode-tab" id="tab-org" onclick="switchMode('org')">Org</span> · <span class="accent">2024.07.01</span> · <span id="node-count">52 seats</span></div>
+<div id="viewport">
+  <div id="canvas"></div>
+</div>
+<div class="hud">
+  <button onclick="zoomBy(1.2)">+</button>
+  <button onclick="zoomBy(1/1.2)">−</button>
+  <div class="zoom-readout" id="zoom-readout">100%</div>
+  <button onclick="fitToScreen()">Fit</button>
+  <button onclick="resetView()">100%</button>
+</div>
+
+<!-- Top-right control stack: label toggles + episode highlights -->
+<div class="controls-tray">
+  <!-- Label-visibility toggles -->
+  <div class="label-toggle-tray" id="label-toggle-tray">
+    <div class="tray-label">Labels</div>
+    <!-- Toggles injected by JS from STATUS_TOGGLES -->
+  </div>
+  <!-- Episode highlight pills -->
+  <div class="ep-pill-tray" id="ep-pill-tray">
+    <div class="tray-label">Redacted episodes</div>
+    <!-- Pills injected by JS from EPISODE_HIGHLIGHTS -->
+  </div>
+</div>
+
+<!-- Detail sidebar -->
+<aside class="sidebar" id="sidebar">
+  <button class="close-btn" onclick="closeSidebar()">×</button>
+  <div id="sidebar-body"><!-- populated on seat click --></div>
+</aside>
+
+<script>
+const OCCUPANTS = {
+  david_shaner: "David S",
+  steve_l: "Steve L",
+  hannah_d: "Hannah D",
+  annalaura_cromwell: "AnnaLaura Cromwell",
+  ramy_kerdany: "Ramy Kerdany",
+  taylor_cotner: "Taylor Cotner",
+  verso_lalto: "Verso L'Alto",
+  fourscore_smith_anderson: "Fourscore / Smith Anderson",
+  kristen_taber: "Kristen Taber",
+  alex_quan: "Alex Quan",
+  m[REDACTED]nn_gray: "M[REDACTED]nn Gray",
+  elise_gabriel: "Elise Gabriel",
+  julia_mulberry: "Julia Mulberry",
+  bex_hyman: "Bex Hyman",
+  addie_smith: "Addie Smith",
+  anna_grace_underwood: "Anna Grace Underwood",
+  janani_krishnan: "Janani Krishnan",
+  courtney_shea: "Courtney Shea",
+  veronica_reyes: "Veronica Reyes",
+  lindsay_wood: "Lindsay Wood",
+  juliet: "Juliet",
+  etinosa_ogbevoen: "Etinosa Ogbevoen",
+  dexter_phuong: "Dexter Phuong",
+  nicole_hill: "Nicole Hill",
+  sam_wright: "Sam Wright",
+  uma_damodaran: "Uma Damodaran",
+  jake_leeman: "Jake Leeman",
+  sharlene_betancourt: "Sharlene Betancourt",
+  dreamten: "Dreamten",
+  ri_riddle: "Ri Riddle",
+  page_west: "Page West",
+  andrew_cromwell: "Andrew Cromwell",
+  michael_jajou: "Michael Jajou",
+  zuhaib_ahmed: "Zuhaib Ahmed",
+  amando_martinez: "Amando Martinez",
+  bri_orsorio: "Bri Orsorio",
+  michael_sati: "Michael Sati",
+  sara_hinojosa: "Sara Hinojosa",
+  lauren_umphenour: "Lauren Umphenour",
+  jenna_sutton: "Jenna Sutton",
+  jenna_stanly: "Jenna Stanly",
+  makenzie_culver: "Makenzie Culver",
+  catherine_tracey: "Catherine Tracey",
+  abbey: "Abbey"
+};
+
+// Tree structure: each seat has id, parent (reports_to), and display data
+const SEATS = [
+  // Top
+  { id:"visionary", title:"Visionary", parent:null, occupants:["david_shaner"], emp:"FULL TIME (2012)", loc:"Raleigh, NC",
+    acc:["Fundraising & investor relations","20 ideas","Key external relationships"] },
+  { id:"integrator", title:"Integrator", parent:"visionary", occupants:["david_shaner"], emp:"FULL TIME (2012)", loc:"Raleigh, NC",
+    acc:["LMA","Financial/growth model (post-close)","P&L + business plan","Company Operating System / The Offline Way","Remove obstacles and barriers"] },
+
+  // Leadership
+  { id:"cro", title:"CRO", parent:"integrator", occupants:["steve_l"], emp:"FULL TIME (2024)", loc:"Raleigh, NC",
+    acc:["Programming Vision & Innovation","Coaching"] },
+  { id:"vp_programming", title:"VP Programming", parent:"integrator", occupants:["hannah_d"], nameOverride:"<s>Hannah D</s> → Steve Larson", emp:"HOURLY", loc:"Raleigh, NC",
+    acc:["LMA","Integrating Programming Vision","Member <-> Biz Fit","Department P&L","Department Tech"] },
+  { id:"vp_marketing", title:"VP of Marketing", parent:"integrator", occupants:["annalaura_cromwell"], nameOverride:"<s>AnnaLaura Cromwell</s> → David Shaner", emp:"FULL TIME (2021)", loc:"Raleigh, NC",
+    acc:["LMA","Owned Social #","Channel strategy: IG","Channel strategy: TT","Creative assets","Messaging","Brand"],
+    kpis:["Followers","Social acquisition"] },
+  { id:"vp_growth", title:"VP of Growth", parent:"integrator", occupants:["ramy_kerdany"], emp:"FULL TIME (2017)", loc:"Raleigh, NC",
+    acc:["LMA","ROAS","New and Existing Markets Growth Strategy","UA Channels Strategy"],
+    kpis:["successful growth experiments","ROAS","Signups/Month"] },
+  { id:"vp_product", title:"VP Product", parent:"integrator", occupants:["taylor_cotner"], emp:"FULL TIME (2017)", loc:"Raleigh, NC",
+    acc:["LMA","Product roadmap","Analytics and reporting"],
+    kpis:["LTV","Churn","NPS","Happiness score","Ticket response time","Activation","50% Annual"] },
+  { id:"vp_technology", title:"VP Technology", parent:"integrator", occupants:["taylor_cotner"], emp:"FULL TIME (2021)", loc:"Raleigh, NC",
+    acc:["LMA","Build and ship features"],
+    kpis:["Deploy Points","Uptime","Release Velocity"] },
+  { id:"cfo", title:"CFO", parent:"integrator", occupants:["verso_lalto"], emp:"CONTRACTOR (2022)", loc:"Raleigh, NC",
+    acc:["Metrics & reporting for company and market data","Financial modeling & Runway support","Financial systems and processes","Annual budgeting process owner","Weekly finance L10s with CEO","Monthly leadership L10"] },
+  { id:"head_of_hr", title:"Head of HR", parent:"integrator", occupants:["verso_lalto"], emp:"CONTRACTOR", loc:"Raleigh, NC",
+    acc:["AP","Employment verification, severance, employee docs, Gusto updates","Payroll processing, bonus/termination calcs","Benefits plan management, enrollment","AP/Contractor/Freelancer payments, CC & expense mgmt"] },
+  { id:"legal", title:"Legal", parent:"integrator", occupants:["fourscore_smith_anderson"], emp:"EXTERNAL FIRM", loc:"Raleigh, NC",
+    acc:["Corporate law","Fundraising"] },
+
+  // Under CRO
+  { id:"head_of_lead_gen", title:"Head of Lead Gen", parent:"vp_programming", occupants:["hannah_d"], emp:"HOURLY", loc:"Raleigh, NC",
+    acc:["LMA","BDR skill development","Outreach goals, strategy, and channels"],
+    kpis:["Meetings Booked","Cost/Meeting Booked"] },
+  { id:"head_of_sales", title:"Head of Sales", parent:"vp_programming", occupants:["hannah_d"], nameOverride:"<s>Hannah D</s> → Steve Larson", emp:"HOURLY", loc:"Raleigh, NC",
+    acc:["LMA","Offer Quotas","Sales Process","Selling Framework","Sales Positioning","Sales Reporting & Forecasting"],
+    kpis:["Offers Closed","Cost/Offer Closed"] },
+  { id:"head_of_partnerships", title:"Head of Partnerships", parent:"vp_programming", occupants:["kristen_taber"], nameOverride:"<s>Kristen Taber</s> → Steve Larson", emp:"CONTRACT", loc:"Raleigh, NC",
+    acc:["LMA","Key Partner Relationships","Troubleshooting Partner Issues","PM and PA role development"],
+    kpis:["Churn","Upsell","Referrals","ARR/CSM"] },
+
+  // Under Head of Lead Gen
+  { id:"bdr_alex_quan", title:"Business Development Rep", parent:"head_of_lead_gen", occupants:["alex_quan"], nameOverride:"Agent Team", emp:"FULL TIME (2024)", loc:"Raleigh, NC",
+    acc:["Booking meetings","Lead research","Hubspot management"], kpis:["Meetings Booked"] },
+  { id:"bdr_m[REDACTED]nn_gray", title:"Business Development Rep", parent:"head_of_lead_gen", occupants:["m[REDACTED]nn_gray"], emp:"FULL TIME (2024)", loc:"Kansas City, MO",
+    acc:["Booking meetings","Lead research","Hubspot management"], kpis:["Meetings Booked"] },
+  { id:"bdr_elise_gabriel", title:"Business Development Rep", parent:"head_of_lead_gen", occupants:["elise_gabriel"], emp:"FULL TIME (2023)", loc:"West Bloomfield, MI",
+    acc:["Booking meetings","Lead research","Hubspot management"], kpis:["Meetings Booked"] },
+  { id:"bdr_hiring", title:"Business Development Rep", parent:"head_of_lead_gen", occupants:[], emp:"HIRING", loc:"Raleigh, NC", hiring:true, acc:[] },
+
+  // Under Head of Sales
+  { id:"ae_julia_mulberry", title:"Sr. Account Executive", parent:"head_of_sales", occupants:["julia_mulberry"], emp:"HOURLY (2023)", loc:"Raleigh, NC",
+    acc:["Offer quota","Maintaining key account relationships"], kpis:["closed/won Offers"] },
+  { id:"ae_bex_hyman", title:"Sr. Account Executive", parent:"head_of_sales", occupants:["bex_hyman"], emp:"FULL TIME (2024)", loc:"Mount Rainier, MD",
+    acc:["Offer quota","Maintaining key account relationships"], kpis:["closed/won Offers"] },
+  { id:"ae_addie_smith", title:"Account Executive", parent:"head_of_sales", occupants:["addie_smith"], emp:"FULL TIME (2024)", loc:"Raleigh, NC",
+    acc:["Offer quota","Maintaining key account relationships"], kpis:["closed/won Offers"] },
+  { id:"ae_steve_l", title:"Account Executive", parent:"head_of_sales", occupants:["steve_l"], emp:"FULL TIME (2024)", loc:"Raleigh, NC",
+    acc:["Offer quota","Maintaining key account relationships"], kpis:["closed/won Offers"] },
+  { id:"ae_anna_grace_underwood", title:"Account Executive", parent:"head_of_sales", occupants:["anna_grace_underwood"], emp:"FULL TIME (2024)", loc:"Raleigh, NC",
+    acc:["Offer quota","Maintaining key account relationships"], kpis:["closed/won Offers"] },
+
+  // Under Head of Partnerships
+  { id:"pm_janani_krishnan", title:"Partnerships Manager", parent:"head_of_partnerships", occupants:["janani_krishnan"], emp:"FULL TIME (2021)", loc:"Raleigh, NC",
+    acc:["Onboarding New Partners","Keeping partners green","Upselling","Managing Partner content"], kpis:["Churn","Upsales","Referrals"] },
+  { id:"pm_kristen_taber", title:"Partnerships Manager", parent:"head_of_partnerships", occupants:["kristen_taber"], nameOverride:"<s>Kristen Taber</s> → Steve Larson", emp:"FULL TIME (2021)", loc:"Raleigh, NC",
+    acc:["Onboarding New Partners","Keeping partners green","Upselling","Managing Partner content"], kpis:["Churn","Upsales","Referrals"] },
+  { id:"pm_courtney_shea", title:"Partnerships Manager", parent:"head_of_partnerships", occupants:["courtney_shea"], emp:"FULL TIME (2024)", loc:"Raleigh, NC",
+    acc:["Onboarding New Partners","Keeping partners green","Upselling","Managing Partner content"], kpis:["Churn","Upsales","Referrals"] },
+  { id:"pa_veronica_reyes", title:"Partnerships Admin", parent:"head_of_partnerships", occupants:["veronica_reyes"], emp:"CONTRACT", loc:"Raleigh, NC",
+    acc:["Data reports for Partners","Social media tracking","Offline backend + ClickUp dashboards","Uploading Partner content"] },
+  { id:"pa_hiring", title:"Partnerships Admin", parent:"head_of_partnerships", occupants:[], emp:"HIRING", loc:"Remote", hiring:true,
+    acc:["Email inbox management","Content upkeep","Partner success admin"] },
+
+  // Under VP Marketing
+  { id:"social_media_comms", title:"Social Media Communications", parent:"vp_programming", occupants:["lindsay_wood"], emp:"HOURLY (2022)", loc:"Raleigh, NC",
+    acc:["Social engagement","Social tracking","Social support","Content velocity, quality, and mix","Planning + publishing content"] },
+  { id:"specialist_brand_voice", title:"Specialist: Brand Voice + Messaging", parent:"vp_marketing", occupants:["juliet"], nameOverride:"<s>Juliet</s> → AI", emp:"HOURLY (2023)", loc:"Raleigh, NC",
+    acc:["Direct response marketing across markets + channels","App Copy (push, headings, subheadings)","Offer Card Copy (final edit)","Structural Member Email Copy","Instagram caption/CTA bank","#Slayallday edits/feedback","Ad messaging + copy"] },
+  { id:"marketing_director_etinosa", title:"Marketing Director", parent:"vp_marketing", occupants:["etinosa_ogbevoen"], emp:"FULL TIME (2021)", loc:"Raleigh, NC",
+    acc:["LMA","Day-to-day ops","Strategy implementation","Hiring + onboarding of SMMs","Growing productivity of individuals"],
+    kpis:["New Market growth targets","Traffic from IG to landing page"] },
+  { id:"marketing_director_dexter", title:"Marketing Director", parent:"vp_marketing", occupants:["dexter_phuong"], emp:"FULL TIME (2021)", loc:"Raleigh, NC",
+    acc:["LMA","Day-to-day ops","Strategy implementation","Hiring + onboarding of SMMs","Growing productivity of individuals"],
+    kpis:["New Market growth targets","Traffic from IG to landing page"] },
+  { id:"marketing_director_nicole", title:"Marketing Director", parent:"vp_marketing", occupants:["nicole_hill"], emp:"FULL TIME (2022)", loc:"Raleigh, NC",
+    acc:["LMA","Day-to-day ops","Strategy implementation","Hiring + onboarding of SMMs","Growing productivity of individuals"],
+    kpis:["New Market growth targets","Traffic from IG to landing page"] },
+
+  // SMMs — parented under Marketing Directors (chart doesn't specify which → we group under nicole for layout)
+  { id:"smm_denver", title:"Sr. Social Media Marketer", market:"DENVER", parent:"marketing_director_etinosa", occupants:["bri_orsorio"], emp:"FULL TIME (2024)", loc:"Denver, CO",
+    acc:["Content velocity, quality, and mix","Digital + written content","Planning & publishing partner content","Supplement other markets","Online + offline community engagement","Selection & training of freelance creators","Lead new market pre-launch","Train SMMs"],
+    kpis:["New Market growth targets","Content posted in base market"] },
+  { id:"smm_san_antonio", title:"Sr. Social Media Marketer", market:"SAN ANTONIO", parent:"marketing_director_etinosa", occupants:["michael_sati"], emp:"FULL TIME (2024)", loc:"San Antonio, TX",
+    acc:["Content velocity, quality, and mix","Digital + written content","Planning & publishing partner content","Supplement other markets","Online + offline community engagement","Selection & training of freelance creators","Lead new market pre-launch","Train SMMs"],
+    kpis:["New Market growth targets","Content posted in base market"] },
+  { id:"smm_austin", title:"Social Media Marketer", market:"AUSTIN", parent:"marketing_director_etinosa", occupants:["sara_hinojosa"], emp:"FULL TIME (2024)", loc:"Austin, TX",
+    acc:["Content velocity, quality, and mix following playbook","Digital + written content","Planning & publishing partner content","Supplement other markets","Online + offline community engagement"],
+    kpis:["Traffic from IG to landing page in base market"] },
+  { id:"smm_orlando", title:"Social Media Marketer", market:"ORLANDO", parent:"marketing_director_dexter", occupants:["lauren_umphenour"], emp:"FULL TIME (2024)", loc:"Orlando, FL",
+    acc:["Content velocity, quality, and mix following playbook","Digital + written content","Planning & publishing partner content","Supplement other markets","Online + offline community engagement"],
+    kpis:["Traffic from IG to landing page in base market"] },
+  { id:"smm_tampa", title:"Social Media Marketer", market:"TAMPA", parent:"marketing_director_dexter", occupants:["jenna_sutton"], emp:"FULL TIME (2024)", loc:"Tampa, FL",
+    acc:["Content velocity, quality, and mix following playbook","Digital + written content","Planning & publishing partner content","Supplement other markets","Online + offline community engagement"],
+    kpis:["Traffic from IG to landing page in base market"] },
+  { id:"smm_raleigh_durham", title:"Social Media Marketer", market:"RALEIGH-DURHAM", parent:"marketing_director_dexter", occupants:["jenna_stanly"], emp:"FULL TIME (2024)", loc:"Raleigh, NC",
+    acc:["Content velocity, quality, and mix following playbook","Digital + written content","Planning & publishing partner content","Supplement other markets","Online + offline community engagement"],
+    kpis:["Traffic from IG to landing page in base market"] },
+  { id:"smm_nashville", title:"Social Media Marketer", market:"NASHVILLE", parent:"marketing_director_dexter", occupants:["makenzie_culver"], emp:"FULL TIME (2024)", loc:"Nashville, TN",
+    acc:["Content velocity, quality, and mix following playbook","Digital + written content","Planning & publishing partner content","Supplement other markets","Online + offline community engagement"],
+    kpis:["Traffic from IG to landing page in base market"] },
+  { id:"smm_charlotte", title:"Social Media Marketer", market:"CHARLOTTE", parent:"marketing_director_nicole", occupants:[], emp:"HIRING", loc:"Charlotte, NC", hiring:true,
+    acc:["Content velocity, quality, and mix following playbook","Digital + written content","Planning & publishing partner content","Supplement other markets","Online + offline community engagement"],
+    kpis:["Traffic from IG to landing page in base market"] },
+  { id:"smm_indianapolis", title:"Social Media Marketer", market:"INDIANAPOLIS", parent:"marketing_director_nicole", occupants:["catherine_tracey"], emp:"FULL TIME (2024)", loc:"Indianapolis, IN",
+    acc:["Content velocity, quality, and mix following playbook","Digital + written content","Planning & publishing partner content","Supplement other markets","Online + offline community engagement"],
+    kpis:["Traffic from IG to landing page in base market"] },
+  { id:"smm_columbus", title:"Social Media Marketer", market:"COLUMBUS", parent:"marketing_director_nicole", occupants:["abbey"], emp:"FULL TIME (2023)", loc:"Columbus, OH",
+    acc:["Content velocity, quality, and mix following playbook","Digital + written content","Planning & publishing partner content","Supplement other markets","Online + offline community engagement"],
+    kpis:["Traffic from IG to landing page in base market"] },
+
+  // Under VP Growth
+  { id:"growth_media_buying", title:"Growth Associate - Media Buying", parent:"vp_growth", occupants:["sam_wright"], nameOverride:"<s>Sam Wright</s> → AI", emp:"FULL TIME (2022)", loc:"Raleigh, NC",
+    acc:["Channel strategy","Budget + spending","Reporting","Budget + Acct. Payable","Media/Affiliate Partnerships"],
+    kpis:["experiments launched","Paid CAC"] },
+  { id:"growth_email_marketing", title:"Growth Associate - Email Marketing", parent:"vp_growth", occupants:["sam_wright"], nameOverride:"<s>Sam Wright</s> → AI", emp:"FULL TIME", loc:"Raleigh, NC",
+    acc:["Open rates & conversion rates","Signups from email/text","New email creative","CIO yellow space"],
+    kpis:["experiments launched","Email/SMS Signups"] },
+  { id:"growth_analytics", title:"Growth Associate - Analytics", parent:"vp_growth", occupants:["uma_damodaran"], emp:"FULL TIME (2023)", loc:"Raleigh, NC",
+    acc:["Clean data flow","Software upkeep","GDS dashboards","MarTech stack"] },
+  { id:"growth_cro", title:"Growth Associate - CRO", parent:"vp_growth", occupants:["uma_damodaran"], emp:"FULL TIME", loc:"Raleigh, NC",
+    acc:["Landing page conversion rates","Checkout flow conversion rates","Webflow site","Ad creative"],
+    kpis:["experiments launched"] },
+  { id:"web_developer", title:"Web Developer", parent:"vp_growth", occupants:["jake_leeman"], nameOverride:"<s>Jake Leeman</s> → AI", emp:"HOURLY (2022)", loc:"Raleigh, NC",
+    acc:["New and existing landing page work","Upkeep of iterative landing page changes"] },
+
+  // Under VP Product
+  { id:"membership_support", title:"Membership Support", parent:"vp_product", occupants:["sharlene_betancourt"], emp:"HOURLY (2023)", loc:"Philippines",
+    acc:["Troubleshooting Member issues","Reporting partner issues to partnerships","Reporting top issues to Product"] },
+  { id:"design_ux", title:"Design/UX", parent:"vp_product", occupants:["dreamten"], emp:"EXTERNAL FIRM", loc:"Remote",
+    acc:["UI/UX design","Design system"] },
+  { id:"lifecycle_marketing", title:"Lifecycle Marketing", parent:"vp_product", occupants:["ri_riddle"], emp:"HOURLY (2023)", loc:"Raleigh, NC",
+    acc:["Post Signup Member communication","Internal campaigns (referral, gifting)","Interface Copy","Monthly Lifecycle","NML Hype Comms"],
+    kpis:["Activation","50% Annual"] },
+
+  // Under VP Technology
+  { id:"head_of_engineering", title:"Head of Engineering", parent:"vp_technology", occupants:["page_west"], emp:"FULL TIME (2017)", loc:"Raleigh, NC",
+    acc:["LMA","Tech stack","Build and ship backend, mobile, and web features","Bugs and platform downtime","Product QA"] },
+  { id:"full_stack_engineer_andrew", title:"Full Stack Engineer", parent:"head_of_engineering", occupants:["andrew_cromwell"], emp:"FULL TIME (2022)", loc:"Raleigh, NC",
+    acc:["Build and ship backend, mobile, and web features","Bugs and platform downtime","Product QA"] },
+  { id:"full_stack_engineer_amando", title:"Full Stack Engineer", parent:"head_of_engineering", occupants:["amando_martinez"], emp:"FULL TIME (2023)", loc:"Raleigh, NC",
+    acc:["Build and ship backend features"] },
+  { id:"mobile_developer", title:"Mobile Developer", parent:"head_of_engineering", occupants:["michael_jajou"], emp:"FULL TIME (2023)", loc:"Lahore, Pakistan",
+    acc:["Build and ship mobile features","Bugs and platform downtime"] },
+  { id:"qa", title:"QA", parent:"head_of_engineering", occupants:["zuhaib_ahmed"], emp:"FULL TIME (2023)", loc:"Lahore, Pakistan",
+    acc:["Run QA tests"] },
+  { id:"it_ops", title:"IT/Ops", parent:"vp_technology", occupants:["taylor_cotner"], emp:"FULL TIME", loc:"Raleigh, NC",
+    acc:["Employee onboarding to internal systems"] },
+
+  // Under CFO
+  { id:"bookkeeping_finance_manager", title:"Bookkeeping & Finance Manager", parent:"cfo", occupants:["verso_lalto"], emp:"CONTRACTOR (2022)", loc:"Raleigh, NC",
+    acc:["Monthly bookkeeping (by COA + market, reconciled to bank + cc)","Monthly reporting","Financial/growth model updates (through close)"],
+    kpis:["# months with valid projections"] }
+];
+
+// ─────────────────────────────────────────────────────────────
+// Layout: top-down tree walk
+// Each node gets an x (center) and y (top) based on its subtree width
+// ─────────────────────────────────────────────────────────────
+const CARD_WIDTH = 220;
+const H_GAP = 20;    // horizontal gap between sibling subtrees
+const V_GAP = 60;    // vertical gap between levels
+const PAD_X = 60;
+const PAD_Y = 80;
+
+// View mode: "accountability" = one box per seat (default); "org" = one box
+// per person, seats folded together. NODES/ROOT_ID are what the layout renders.
+let MODE = "accountability";
+let NODES = SEATS;
+let ROOT_ID = "visionary";
+
+function buildTree() {
+  const byId = {};
+  NODES.forEach(s => { s.children = []; byId[s.id] = s; });
+  NODES.forEach(s => {
+    if (s.parent && byId[s.parent]) byId[s.parent].children.push(s);
+  });
+  return byId[ROOT_ID];
+}
+
+function computeSubtreeWidth(node) {
+  if (node.children.length === 0) {
+    node._subtreeWidth = CARD_WIDTH;
+    return CARD_WIDTH;
+  }
+  let total = 0;
+  node.children.forEach((c, i) => {
+    total += computeSubtreeWidth(c);
+    if (i > 0) total += H_GAP;
+  });
+  node._subtreeWidth = Math.max(CARD_WIDTH, total);
+  return node._subtreeWidth;
+}
+
+function assignX(node, left) {
+  node._x = left + node._subtreeWidth / 2 - CARD_WIDTH / 2;
+  let childLeft = left;
+  if (node.children.length > 0) {
+    const childrenTotalWidth = node.children.reduce((acc, c, i) =>
+      acc + c._subtreeWidth + (i > 0 ? H_GAP : 0), 0);
+    childLeft = left + (node._subtreeWidth - childrenTotalWidth) / 2;
+    node.children.forEach(c => {
+      assignX(c, childLeft);
+      childLeft += c._subtreeWidth + H_GAP;
+    });
+  }
+}
+
+function groupByDepth(node, depth, levels) {
+  if (!levels[depth]) levels[depth] = [];
+  levels[depth].push(node);
+  node._depth = depth;
+  node.children.forEach(c => groupByDepth(c, depth + 1, levels));
+}
+
+function initials(name) {
+  return name.split(" ").map(p => p[0]).join("").slice(0, 2).toUpperCase();
+}
+
+function renderCard(node) {
+  const div = document.createElement("div");
+  div.className = "card" + (node.hiring ? " hiring" : "") + (node.contractor ? " contractor" : "");
+  div.dataset.seatId = node.id;
+  div.style.left = node._x + "px";
+  div.style.top = node._y + "px";
+
+  // Org mode: one box per person, folded accountabilities with inline badges.
+  if (node.isPerson) {
+    const accBlock = (node.accItems && node.accItems.length)
+      ? `<div class="section-label">Accountabilities</div><ul class="accountabilities">${node.accItems.map(a => {
+          const marks = a.statuses.map(st => {
+            const m = STATUS_META[st];
+            return m ? `<span class="${m.markClass}">${m.label}</span>` : "";
+          }).join("");
+          return `<li${a.paused ? ' class="paused"' : ''}>${a.name}${marks}</li>`;
+        }).join("")}</ul>`
+      : "";
+    const empTag = node.contractor ? `<span class="emp-tag">Contractor</span>` : "";
+    div.innerHTML = `
+      <div class="card-header">
+        <div class="who">
+          <div class="title">${node.title}</div>
+          <div class="name">${node.roles}</div>
+        </div>
+      </div>
+      ${accBlock}
+      <div class="meta">${node.emp}${empTag}<br>${node.loc}</div>
+    `;
+    return div;
+  }
+
+  const occNames = node.occupants.map(o => OCCUPANTS[o] || o);
+  const displayName = node.nameOverride || (node.hiring ? "HIRING" : (occNames.join(" / ") || "—"));
+  const avatarInit = node.hiring ? "?" : (occNames[0] ? initials(occNames[0]) : "?");
+
+  const marketBadge = node.market ? `<div class="market">${node.market}</div>` : "";
+  const accBlock = node.acc && node.acc.length
+    ? `<div class="section-label">Accountabilities</div><ul class="accountabilities">${node.acc.map(a => `<li>${a}</li>`).join("")}</ul>`
+    : "";
+  const kpisBlock = node.kpis && node.kpis.length
+    ? `<div class="section-label">Key KPIs</div><div class="kpis">${node.kpis.join(" · ")}</div>`
+    : "";
+
+  div.innerHTML = `
+    ${marketBadge}
+    <div class="card-header">
+      <div class="who">
+        <div class="title">${node.title}</div>
+        <div class="name">${displayName}</div>
+      </div>
+    </div>
+    ${accBlock}
+    ${kpisBlock}
+    <div class="meta">${node.emp}<br>${node.loc}</div>
+  `;
+  return div;
+}
+
+function walkAll(node, fn) {
+  fn(node);
+  node.children.forEach(c => walkAll(c, fn));
+}
+
+function render() {
+  const root = buildTree();
+  computeSubtreeWidth(root);
+  assignX(root, PAD_X);
+
+  const canvas = document.getElementById("canvas");
+  canvas.innerHTML = ""; // clear so re-render (mode switch) starts fresh
+
+  // Pass 1: render all cards offscreen at correct x, measure actual heights
+  const cardMap = new Map();
+  walkAll(root, n => {
+    const card = renderCard(n);
+    card.style.top = "-10000px"; // offscreen for measurement
+    canvas.appendChild(card);
+    cardMap.set(n.id, card);
+  });
+
+  walkAll(root, n => {
+    n._h = cardMap.get(n.id).offsetHeight;
+  });
+
+  // Pass 2: compute per-level y positions using max height at each depth
+  const levels = {};
+  groupByDepth(root, 0, levels);
+  const maxDepth = Math.max(...Object.keys(levels).map(Number));
+
+  let currentY = PAD_Y;
+  for (let d = 0; d <= maxDepth; d++) {
+    const nodes = levels[d];
+    const maxH = Math.max(...nodes.map(n => n._h));
+    nodes.forEach(n => { n._y = currentY; });
+    currentY += maxH + V_GAP;
+  }
+
+  // Apply final y positions to cards
+  walkAll(root, n => {
+    cardMap.get(n.id).style.top = n._y + "px";
+  });
+
+  // Compute canvas size
+  let maxX = 0, maxY = 0;
+  walkAll(root, n => {
+    maxX = Math.max(maxX, n._x + CARD_WIDTH);
+    maxY = Math.max(maxY, n._y + n._h);
+  });
+  const canvasW = maxX + PAD_X;
+  const canvasH = maxY + PAD_Y;
+  canvas.style.width = canvasW + "px";
+  canvas.style.height = canvasH + "px";
+
+  // Render connectors (SVG) using measured heights
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("class", "connectors");
+  svg.setAttribute("width", canvasW);
+  svg.setAttribute("height", canvasH);
+  walkAll(root, n => {
+    n.children.forEach(c => {
+      const x1 = n._x + CARD_WIDTH / 2;
+      const y1 = n._y + n._h;
+      const x2 = c._x + CARD_WIDTH / 2;
+      const y2 = c._y;
+      const midY = (y1 + y2) / 2;
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute("d", `M${x1},${y1} L${x1},${midY} L${x2},${midY} L${x2},${y2}`);
+      path.setAttribute("stroke", "#5B7B6A");
+      path.setAttribute("stroke-width", "1");
+      path.setAttribute("fill", "none");
+      path.setAttribute("opacity", "0.4");
+      svg.appendChild(path);
+    });
+  });
+  canvas.insertBefore(svg, canvas.firstChild);
+}
+
+render();
+
+// ─────────────────────────────────────────────────────────────
+// Pan & zoom
+// ─────────────────────────────────────────────────────────────
+const viewport = document.getElementById("viewport");
+const canvasEl = document.getElementById("canvas");
+const zoomReadout = document.getElementById("zoom-readout");
+
+let scale = 1;
+let tx = 0, ty = 0;
+const MIN_SCALE = 0.1;
+const MAX_SCALE = 3;
+
+function applyTransform() {
+  canvasEl.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+  zoomReadout.textContent = Math.round(scale * 100) + "%";
+}
+
+function zoomBy(factor, originX, originY) {
+  const newScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale * factor));
+  if (newScale === scale) return;
+  // If an origin is provided (cursor position), zoom around it
+  if (originX !== undefined && originY !== undefined) {
+    const rect = viewport.getBoundingClientRect();
+    const localX = originX - rect.left;
+    const localY = originY - rect.top;
+    // world point under cursor before zoom
+    const worldX = (localX - tx) / scale;
+    const worldY = (localY - ty) / scale;
+    scale = newScale;
+    // keep that world point under the cursor after zoom
+    tx = localX - worldX * scale;
+    ty = localY - worldY * scale;
+  } else {
+    // zoom around viewport center
+    const rect = viewport.getBoundingClientRect();
+    const cx = rect.width / 2;
+    const cy = rect.height / 2;
+    const worldX = (cx - tx) / scale;
+    const worldY = (cy - ty) / scale;
+    scale = newScale;
+    tx = cx - worldX * scale;
+    ty = cy - worldY * scale;
+  }
+  applyTransform();
+}
+
+function fitToScreen() {
+  const rect = viewport.getBoundingClientRect();
+  const canvasW = canvasEl.offsetWidth;
+  const canvasH = canvasEl.offsetHeight;
+  const scaleX = (rect.width - 40) / canvasW;
+  const scaleY = (rect.height - 40) / canvasH;
+  scale = Math.min(scaleX, scaleY, MAX_SCALE);
+  tx = (rect.width - canvasW * scale) / 2;
+  ty = 20;
+  applyTransform();
+}
+
+function resetView() {
+  scale = 1;
+  tx = 20;
+  ty = 60;
+  applyTransform();
+}
+
+// Click-and-drag panning
+let isDragging = false;
+let dragStartX = 0, dragStartY = 0;
+let txStart = 0, tyStart = 0;
+
+viewport.addEventListener("mousedown", (e) => {
+  isDragging = true;
+  dragStartX = e.clientX;
+  dragStartY = e.clientY;
+  txStart = tx;
+  tyStart = ty;
+  viewport.classList.add("grabbing");
+  canvasEl.classList.add("panning");
+  e.preventDefault();
+});
+
+window.addEventListener("mousemove", (e) => {
+  if (!isDragging) return;
+  tx = txStart + (e.clientX - dragStartX);
+  ty = tyStart + (e.clientY - dragStartY);
+  applyTransform();
+});
+
+window.addEventListener("mouseup", () => {
+  isDragging = false;
+  viewport.classList.remove("grabbing");
+  canvasEl.classList.remove("panning");
+});
+
+// Wheel zoom (ctrl/cmd-wheel or pinch = zoom; bare wheel = pan).
+// Listen on window so cmd-wheel / pinch zoom over the sidebar or pill
+// gets blocked too — otherwise the browser does its default page zoom
+// and visually scales the fixed elements along with everything else.
+window.addEventListener("wheel", (e) => {
+  const overViewport = viewport.contains(e.target) || e.target === viewport;
+  if (e.ctrlKey || e.metaKey) {
+    // Always prevent browser zoom anywhere on the page
+    e.preventDefault();
+    // Only route to canvas zoom when actually over the chart
+    if (overViewport) {
+      const factor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
+      zoomBy(factor, e.clientX, e.clientY);
+    }
+    return;
+  }
+  // Bare wheel: pan when over viewport, otherwise let the element scroll
+  // (so the sidebar scrolls natively when its content overflows)
+  if (overViewport) {
+    e.preventDefault();
+    tx -= e.deltaX;
+    ty -= e.deltaY;
+    applyTransform();
+  }
+}, { passive: false });
+
+// Keyboard shortcuts
+window.addEventListener("keydown", (e) => {
+  if (e.key === "0") { resetView(); }
+  else if (e.key === "f" || e.key === "F") { fitToScreen(); }
+  else if (e.key === "=" || e.key === "+") { zoomBy(1.2); }
+  else if (e.key === "-" || e.key === "_") { zoomBy(1/1.2); }
+});
+
+// Start: fit whole chart to screen
+fitToScreen();
+
+// ─────────────────────────────────────────────────────────────
+// Sidebar + episode highlights (added 2026-05-01 for Redacted ep03)
+// ─────────────────────────────────────────────────────────────
+
+// Per-seat accountability detail. Falls back to seat.acc when no entry.
+// Sub-items can be flagged AI-ified to render the green badge.
+const ACC_DETAIL = {
+  visionary: {
+    "Fundraising & investor relations": [
+      { name: "Shareholder update", status: "ai", episodes: ["ep02"],
+        note: "Skill: shareholder-update · /shaner-consulting build" },
+      { name: "Investor one-on-ones and relationship management", status: "paused",
+        note: "Paused — not actively raising right now" },
+      { name: "Fundraising process", status: "paused",
+        note: "Paused — not actively raising right now" },
+      { name: "Board meetings and governance", status: "manual" }
+    ],
+    "Key external relationships": [
+      { name: "Business development — restaurant tech space", status: "ai",
+        note: "Offline BD Walkthrough Playbook · repo: projects/offline/biz_dev/ · [REDACTED], Fidel, Toast +others · not yet covered on the show" }
+    ]
+  },
+  integrator: {
+    "P&L + business plan": [
+      { name: "Closing the books + P&L modeling", status: "ai",
+        note: "Offline Finance Forecaster · repo: projects/offline/internal/offline-revenue-predictor/ · Taylor shipped it · close-reports for the books close" }
+    ],
+    "Company Operating System / The Offline Way": [
+      { name: "Rerun a process into the ClickUp house format", status: "ai",
+        note: "Skill: clickup-process-reconciliation · produces the automation-readiness map (LLM-Access verdict per step)" }
+    ]
+  },
+  web_developer: {
+    "New and existing landing page work": [
+      { name: "Page design, copy, and build", aified: true,
+        note: "Cutover to AI with HITL · partners landing rebuild, 64.4h wall-clock · ep06" }
+    ],
+    "Upkeep of iterative landing page changes": [
+      { name: "Iterative changes + QA passes", aified: true,
+        note: "Cutover to AI with HITL · live QA loop via chrome-devtools · ep06" }
+    ]
+  },
+  bdr_alex_quan: {
+    "Lead research": [
+      { name: "Company + contact research", aified: true, episodes: ["ep04", "ep05"],
+        note: "Cutover to AI with HITL · biz_dev outreach brief ([REDACTED], Vox/Eater) · mentioned in ep02" }
+    ],
+    "Hubspot management": [
+      { name: "Clean + merge restaurant locations, parent-child linking", status: "ai",
+        episodes: ["ep02", "ep03", "ep04", "ep05"],
+        note: "HubSpot cleanup — agent team · repo: OfflineMediaInc/The-A-Team" }
+    ]
+  },
+  bdr_m[REDACTED]nn_gray: {
+    "Lead research": [
+      { name: "Company + contact research", aified: true,
+        note: "Cutover to AI with HITL · biz_dev playbook · ep06" }
+    ]
+  },
+  bdr_elise_gabriel: {
+    "Lead research": [
+      { name: "Company + contact research", aified: true,
+        note: "Cutover to AI with HITL · biz_dev playbook · ep06" }
+    ]
+  },
+  head_of_sales: {
+    "Sales Process": [
+      { name: "Post-meeting follow-up", status: "ai",
+        note: "Steve's Claude skill — post-meeting · path TBD (not located in repo)" }
+    ],
+    "Selling Framework": [
+      { name: "Churn / retention selling framework", status: "ai",
+        note: "Steve's Claude skill — churn selling framework · path TBD (not located in repo)" }
+    ],
+    "Sales Positioning": [
+      { name: "Mine Steve's call transcripts → landing-page positioning", status: "ai", episodes: ["ep03"],
+        note: "Voice-of-customer → operator language on the B2B landing page" }
+    ]
+  },
+  ae_steve_l: {
+    "Offer quota": [
+      { name: "Self-service partner upgrades", status: "ai",
+        note: "Self-service upgrade portal · repo: OfflineMediaInc/offline-event-form · existing partners self-upgrade (the four other AE seats now paused)" }
+    ]
+  },
+  // Partnerships Manager — Steve took over Kristen's box; the others are paused.
+  pm_kristen_taber: {
+    "Onboarding New Partners": [
+      { name: "Self-service partner onboarding + upgrades", status: "ai",
+        note: "Same self-service portal as offer quota · repo: OfflineMediaInc/offline-event-form" }
+    ],
+    "Keeping partners green": [
+      { name: "Partner complaint handling", status: "ai",
+        note: "Partner complaint handling process · skill: complaint-processing (offline-internal)" }
+    ],
+    "Upselling": [
+      { name: "Expansion outreach to existing partners with new locations", status: "ai", episodes: ["ep04"],
+        note: "Post-HubSpot-cleanup: scan the book for expansion opps (a partner opened a new location) → warm outreach" }
+    ],
+    "Managing Partner content": [
+      { name: "Creator + partner content management", status: "ai",
+        note: "New creators portal · repo: OfflineMediaInc/Creator-App" }
+    ]
+  },
+  vp_marketing: {
+    "Creative assets": [
+      { name: "Photo library tagged for AI (Google Drive metadata)", status: "ai",
+        note: "AI-tagged the Drive photo library so agents can read each photo · script: 60_digital_web/scripts/tag-drive-photos.py" },
+      { name: "Partner launch videos", status: "ai",
+        note: "AI-driven video editing · Remotion pipeline: 20_go_to_market/restaurant_marketing/partner-launch-video/" }
+    ],
+    "Messaging": [
+      { name: "Copy + messaging generation", status: "ai",
+        note: "Outsourced to AI — it's a prompt now" }
+    ],
+    "Brand": [
+      { name: "Style guide + LLM-friendly brand package", status: "ai",
+        note: "AI-generated via Claude design · design system / component library: OfflineMediaInc/offline-style-guide (@offlinemediainc/offline-ui), used by Taylor" }
+    ]
+  },
+  membership_support: {
+    "Troubleshooting Member issues": [
+      { name: "Member support via tooling", status: "ai",
+        note: "Intercom + internal support features we built into the admin system to resolve faster" }
+    ],
+    "Reporting partner issues to partnerships": [
+      { name: "Complaint routing", status: "ai",
+        note: "Became the complaint process via an n8n automation" }
+    ]
+  }
+};
+
+// ── Redacted episode registry ──────────────────────────────────
+// Canonical episode list (source: redacted/episodes.yaml). `released` drives
+// the top-right pills — EVERY released episode gets a toggle, even if nothing
+// on the chart references it yet. Attach an episode to a line item via that
+// subtask's `episodes` field: a list of episode ids, or {id, t} where `t` is
+// an optional YouTube timestamp (e.g. "3m40s") for a deep link. The side view
+// then lists every relevant episode with its link; timestamps are the bonus.
+const EPISODES = [
+  { id:"ep01", tag:"EP01", title:"What Happens When You Rebuild a Business With AI",            url:"https://www.youtube.com/watch?v=N1Zfxm0RQMs", released:true },
+  { id:"ep02", tag:"EP02", title:"The AI Workflow Graveyard: CRMs, Agents, and… Tamagotchis?", url:"https://www.youtube.com/watch?v=VFLEatgS6LA", released:true },
+  { id:"ep03", tag:"EP03", title:"A Sentient HubSpot for $2 a Brand",                          url:"https://www.youtube.com/watch?v=zWtqq6vLVmo", released:true },
+  { id:"ep04", tag:"EP04", title:"(ep04 — title/link pending in episodes.yaml)",               url:null,                                          released:true },
+  { id:"ep05", tag:"EP05", title:"(ep05 — not yet released)",                                   url:null,                                          released:false },
+  { id:"ep06", tag:"EP06", title:"(ep06 — not yet released)",                                   url:null,                                          released:false }
+];
+const EPISODE_BY_ID = Object.fromEntries(EPISODES.map(e => [e.id, e]));
+
+// Rich highlight overlays, keyed by episode id (optional). When a pill is
+// toggled, these seats highlight and a per-seat banner shows in the side view.
+// Highlighted seats are the union of these notes' keys and any seat with a
+// line-item episode attachment for that episode — so an episode needs an entry
+// here only when it wants the "who would normally own this" storytelling.
+const EPISODE_HIGHLIGHTS = {
+  ep03: {
+    label: "B2B Landing Page Rebuild",
+    conductor: "visionary",
+    notes: {
+      visionary: "Conductor — David + Claude. Orchestrated the whole 5-day job.",
+      vp_growth: "Would normally own: conversion strategy, ROAS framing, UA channel positioning.",
+      vp_marketing: "Would normally own: brand voice, headline + subhead copy, creative assets.",
+      design_ux: "Would normally own: wireframes, UI/visual design, Webflow handoff.",
+      cro: "Would normally own: voice-of-customer interviews, operator language, sales positioning."
+    }
+  }
+};
+
+// Normalize a subtask's `episodes` into [{id, t}]; accepts plain id strings too.
+function epAttachments(s) {
+  return (s.episodes || []).map(e => (typeof e === "string" ? { id: e } : e));
+}
+
+// Seats relevant to an episode: highlight-entry seats ∪ seats with a line-item
+// attachment for that episode.
+function seatsForEpisode(epId) {
+  const seats = new Set();
+  const hl = EPISODE_HIGHLIGHTS[epId];
+  if (hl) { Object.keys(hl.notes).forEach(s => seats.add(s)); if (hl.conductor) seats.add(hl.conductor); }
+  Object.entries(ACC_DETAIL).forEach(([seatId, accs]) => {
+    Object.values(accs).forEach(subs => subs.forEach(s => {
+      if (epAttachments(s).some(a => a.id === epId)) seats.add(seatId);
+    }));
+  });
+  return seats;
+}
+
+// YouTube link for an episode, with optional timestamp deep link.
+function episodeUrl(ep, t) {
+  if (!ep || !ep.url) return null;
+  return t ? ep.url + (ep.url.includes("?") ? "&" : "?") + "t=" + encodeURIComponent(t) : ep.url;
+}
+
+// "Covered on" row for a subtask: lists every relevant episode. Released
+// episodes link to YouTube (deep-linked when a timestamp is set); unreleased
+// or link-pending episodes render as a muted, non-clickable tag.
+function renderEpisodeLinks(s) {
+  const atts = epAttachments(s);
+  if (!atts.length) return "";
+  const items = atts.map(a => {
+    const ep = EPISODE_BY_ID[a.id];
+    if (!ep) return "";
+    const url = episodeUrl(ep, a.t);
+    if (ep.released && url) {
+      return `<a class="sb-ep-link" href="${url}" target="_blank" rel="noopener" title="${ep.title}">${ep.tag}${a.t ? " @ " + a.t : ""} ↗</a>`;
+    }
+    const state = ep.released ? "link pending" : "unreleased";
+    return `<span class="sb-ep-link disabled" title="${ep.title}">${ep.tag} <span class="ep-link-state">(${state})</span></span>`;
+  }).join("");
+  return `<div class="sb-ep-links"><span class="sb-ep-links-label">Covered on</span>${items}</div>`;
+}
+
+let activeEpisodeId = null;
+let selectedSeatId = null;
+
+// ── Status taxonomy ──────────────────────────────────────────
+// Three states a subtask (or whole accountability) can be in on the
+// AI-transition journey. AI is the original primitive; MANUAL and
+// PAUSED were added 2026-06-18.
+//   ai     → cut over to AI            (solid green)
+//   manual → still human / hand-done   (solid clay)
+//   paused → kept on the chart but not happening right now (hollow grey, dimmed)
+const STATUS_META = {
+  ai:     { label: "AI",     markClass: "acc-ai-mark",     badgeClass: "sb-aified-badge", subClass: "aified" },
+  manual: { label: "MANUAL", markClass: "acc-manual-mark", badgeClass: "sb-manual-badge", subClass: "manual" },
+  paused: { label: "PAUSED", markClass: "acc-paused-mark", badgeClass: "sb-paused-badge", subClass: "paused" }
+};
+
+// Accountability-level status — tags a whole accountability line that
+// has no subtask breakdown (or where the whole line shares one state).
+const ACC_STATUS = {
+  visionary: {
+    "Key external relationships": "manual"
+  },
+  integrator: {
+    "LMA": "paused",
+    "Financial/growth model (post-close)": "paused"
+  },
+  head_of_sales: {
+    "LMA": "paused"
+  },
+  vp_marketing: {
+    "LMA": "paused",
+    "Owned Social #": "paused",
+    "Channel strategy: IG": "paused",
+    "Channel strategy: TT": "paused"
+  },
+  vp_programming: {
+    "LMA": "paused",
+    "Integrating Programming Vision": "paused",
+    "Department P&L": "paused"
+  },
+  specialist_brand_voice: {
+    "Direct response marketing across markets + channels": "paused",
+    "App Copy (push, headings, subheadings)": "ai",
+    "Offer Card Copy (final edit)": "ai",
+    "Structural Member Email Copy": "ai",
+    "Instagram caption/CTA bank": "paused",
+    "#Slayallday edits/feedback": "paused",
+    "Ad messaging + copy": "paused"
+  },
+  growth_media_buying: {
+    "Channel strategy": "paused",
+    "Budget + spending": "paused",
+    "Reporting": "ai",
+    "Budget + Acct. Payable": "ai",
+    "Media/Affiliate Partnerships": "paused"
+  },
+  growth_email_marketing: {
+    "Open rates & conversion rates": "paused",
+    "Signups from email/text": "paused",
+    "New email creative": "ai",
+    "CIO yellow space": "paused"
+  },
+  vp_product: {
+    "LMA": "paused"
+  },
+  design_ux: {
+    "UI/UX design": "ai",
+    "Design system": "ai"
+  },
+  lifecycle_marketing: {
+    "Interface Copy": "ai",
+    "Monthly Lifecycle": "paused",
+    "NML Hype Comms": "paused"
+  },
+  vp_technology: {
+    "LMA": "paused",
+    "Build and ship features": "ai"
+  },
+  head_of_engineering: {
+    "LMA": "paused",
+    "Build and ship backend, mobile, and web features": "ai",
+    "Bugs and platform downtime": "ai",
+    "Product QA": "ai"
+  },
+  mobile_developer: {
+    "Build and ship mobile features": "ai",
+    "Bugs and platform downtime": "ai"
+  },
+  bookkeeping_finance_manager: {
+    "Financial/growth model updates (through close)": "paused"
+  },
+  legal: {
+    "Corporate law": "manual",
+    "Fundraising": "paused"
+  }
+};
+
+// Seat-level status — applies a label to the WHOLE box (every accountability
+// inside it), e.g. a seat that's entirely paused. Same taxonomy, broader scope.
+const SEAT_STATUS = {
+  cro: "paused",
+  head_of_lead_gen: "paused",
+  bdr_hiring: "paused",
+  bdr_m[REDACTED]nn_gray: "paused",
+  bdr_elise_gabriel: "paused",
+  ae_julia_mulberry: "paused",
+  ae_bex_hyman: "paused",
+  ae_addie_smith: "paused",
+  ae_anna_grace_underwood: "paused",
+  head_of_partnerships: "paused",
+  pm_janani_krishnan: "paused",
+  pm_courtney_shea: "paused",
+  pa_veronica_reyes: "paused",
+  pa_hiring: "paused",
+  marketing_director_etinosa: "paused",
+  marketing_director_dexter: "paused",
+  marketing_director_nicole: "paused",
+  smm_denver: "paused",
+  smm_san_antonio: "paused",
+  smm_austin: "paused",
+  smm_orlando: "paused",
+  smm_tampa: "paused",
+  smm_raleigh_durham: "paused",
+  smm_nashville: "paused",
+  smm_charlotte: "paused",
+  smm_indianapolis: "paused",
+  smm_columbus: "paused",
+  specialist_brand_voice: "ai",
+  vp_growth: "paused",
+  growth_media_buying: "ai",
+  growth_email_marketing: "ai",
+  growth_analytics: "paused",
+  growth_cro: "paused",
+  web_developer: "ai",
+  full_stack_engineer_andrew: "paused",
+  full_stack_engineer_amando: "paused",
+  qa: "paused",
+  it_ops: "paused",
+  cfo: "paused"
+};
+
+// Accountabilities that MOVED onto a seat from a (now-paused) role — a light
+// provenance affordance, not a work-state. Value is where it came from.
+const ACC_MOVED = {
+  social_media_comms: {
+    "Content velocity, quality, and mix": "Moved from the Social Media Marketer role",
+    "Planning + publishing content": "Moved from the Social Media Marketer role"
+  }
+};
+
+// A subtask's state: explicit `status`, or legacy `aified: true` → "ai".
+function subStatus(s) { return s.status || (s.aified ? "ai" : null); }
+
+// Distinct states present on an accountability — the union of its explicit
+// ACC_STATUS baseline (if any) and every state among its subtasks. So a line
+// that's MANUAL overall but has one AI-ified subtask shows both. Returns []
+// for an untagged line.
+function accStatuses(seatId, accName) {
+  const set = [];
+  const explicit = (ACC_STATUS[seatId] || {})[accName];
+  if (explicit) set.push(explicit);
+  const subs = (ACC_DETAIL[seatId] || {})[accName];
+  if (subs) subs.forEach(s => { const st = subStatus(s); if (st && !set.includes(st)) set.push(st); });
+  return set;
+}
+
+// True only when an accountability is entirely paused (whole line dormant).
+function isWhollyPaused(seatId, accName) {
+  const statuses = accStatuses(seatId, accName);
+  return statuses.length > 0 && statuses.every(s => s === "paused");
+}
+
+// Mark each card's accountability lines with a pill per distinct state
+// present (AI / MANUAL / PAUSED), and dim wholly-paused lines.
+function markAccStatuses() {
+  document.querySelectorAll(".card").forEach(card => {
+    const seatId = card.dataset.seatId;
+    card.querySelectorAll(".accountabilities li").forEach(li => {
+      const accName = li.textContent.trim();
+      accStatuses(seatId, accName).forEach(st => {
+        const meta = STATUS_META[st];
+        if (!meta) return;
+        const mark = document.createElement("span");
+        mark.className = meta.markClass;
+        mark.textContent = meta.label;
+        li.appendChild(mark);
+      });
+      if (isWhollyPaused(seatId, accName)) li.classList.add("paused");
+      const movedFrom = (ACC_MOVED[seatId] || {})[accName];
+      if (movedFrom) {
+        const m = document.createElement("span");
+        m.className = "acc-moved-mark";
+        m.textContent = "↳ moved";
+        m.title = movedFrom;
+        li.appendChild(m);
+      }
+    });
+  });
+}
+
+// Apply seat-level status to whole boxes: a `seat-<status>` class on the card
+// (paused dims the entire box) plus a seat-level badge by the title. Reuses the
+// status badge classes so the Labels toggle hides/shows it like any other.
+function markSeatStatuses() {
+  document.querySelectorAll(".card").forEach(card => {
+    const st = SEAT_STATUS[card.dataset.seatId];
+    const meta = st ? STATUS_META[st] : null;
+    if (!meta) return;
+    card.classList.add("seat-" + st);
+    const title = card.querySelector(".who .title");
+    if (title) {
+      const mark = document.createElement("span");
+      mark.className = meta.markClass;
+      mark.textContent = meta.label;
+      title.appendChild(mark);
+    }
+  });
+}
+
+// Run the marking passes. In org mode, person cards render their badges
+// inline (see renderCard), so the seat-keyed passes are skipped.
+function applyMarks() {
+  if (MODE === "accountability") { markAccStatuses(); markSeatStatuses(); }
+}
+applyMarks();
+
+// ── Org mode: build one node per person, fold their seats together ──
+// Status of a folded accountability: a seat-level paused cascades to all its
+// lines; otherwise the line's own AI/MANUAL/PAUSED (a seat-level AI headlines).
+function resolveStatuses(seatId, accName) {
+  const seatSt = SEAT_STATUS[seatId];
+  if (seatSt === "paused") return ["paused"];
+  const accSt = accStatuses(seatId, accName);
+  if (seatSt === "ai" && accSt.length === 0) return ["ai"];
+  if (seatSt === "ai" && !accSt.includes("ai")) return ["ai", ...accSt];
+  return accSt;
+}
+
+function buildPeopleNodes() {
+  const seatById = {};
+  SEATS.forEach(s => { seatById[s.id] = s; });
+  const depthOf = seat => { let d = 0, cur = seat; while (cur && cur.parent) { d++; cur = seatById[cur.parent]; } return d; };
+
+  // Group seats by occupant (skip empty/hiring seats — no person there).
+  const byPerson = {};
+  SEATS.forEach(s => {
+    const occ = s.occupants && s.occupants[0];
+    if (!occ) return;
+    (byPerson[occ] = byPerson[occ] || []).push(s);
+  });
+
+  const ORDER = { ai: 0, manual: 1, paused: 2 };
+  const nodes = [];
+  Object.entries(byPerson).forEach(([occ, seats]) => {
+    seats.sort((a, b) => depthOf(a) - depthOf(b));
+    const primary = seats[0];
+
+    // Parent person = occupant of the parent seat of this person's top seat,
+    // walking up past any seat the same person also holds.
+    let parentOcc = null, cur = primary.parent ? seatById[primary.parent] : null, guard = 0;
+    while (cur && guard < 30) {
+      const o = cur.occupants && cur.occupants[0];
+      if (o && o !== occ) { parentOcc = o; break; }
+      cur = cur.parent ? seatById[cur.parent] : null;
+      guard++;
+    }
+
+    // Fold accountabilities, deduped by name, statuses unioned across seats.
+    const accMap = new Map();
+    seats.forEach(s => (s.acc || []).forEach(name => {
+      if (!accMap.has(name)) accMap.set(name, new Set());
+      resolveStatuses(s.id, name).forEach(st => accMap.get(name).add(st));
+    }));
+    const accItems = [...accMap.entries()].map(([name, set]) => {
+      const statuses = [...set].sort((a, b) => (ORDER[a] ?? 9) - (ORDER[b] ?? 9));
+      return { name, statuses, paused: statuses.length > 0 && statuses.every(s => s === "paused") };
+    });
+
+    nodes.push({
+      id: "person_" + occ,
+      isPerson: true,
+      title: OCCUPANTS[occ] || occ,
+      roles: seats.map(s => s.title).join(" · "),
+      parent: parentOcc ? ("person_" + parentOcc) : null,
+      occupants: [occ],
+      seatIds: seats.map(s => s.id),
+      accItems,
+      acc: accItems.map(a => a.name),
+      emp: primary.emp || "",
+      loc: primary.loc || "",
+      contractor: !/^FULL TIME/i.test(primary.emp || "")
+    });
+  });
+  return nodes;
+}
+
+function updateHeader() {
+  const a = document.getElementById("tab-accountability");
+  const o = document.getElementById("tab-org");
+  if (a) a.classList.toggle("active", MODE === "accountability");
+  if (o) o.classList.toggle("active", MODE === "org");
+  const c = document.getElementById("node-count");
+  if (c) c.textContent = (MODE === "org") ? (NODES.length + " people") : "52 seats";
+}
+
+function switchMode(mode) {
+  if (mode === MODE) return;
+  MODE = mode;
+  if (mode === "org") {
+    NODES = buildPeopleNodes();
+    ROOT_ID = (NODES.find(n => n.parent === null) || NODES[0]).id;
+  } else {
+    NODES = SEATS;
+    ROOT_ID = "visionary";
+  }
+  closeSidebar();
+  if (activeEpisodeId) clearEpisode();
+  render();
+  applyMarks();
+  updateHeader();
+  fitToScreen();
+}
+
+// ── Label-visibility toggles ──────────────────────────────────
+// One entry per status label. `on: false` would start it hidden.
+// The paradigm generalizes: add a row to wire any future label.
+const STATUS_TOGGLES = [
+  { key: "ai",     label: "AI",     on: true },
+  { key: "manual", label: "Manual", on: false },
+  { key: "paused", label: "Paused", on: false }
+];
+
+(function buildLabelToggles() {
+  const tray = document.getElementById("label-toggle-tray");
+  STATUS_TOGGLES.forEach(t => {
+    const btn = document.createElement("button");
+    btn.className = "label-toggle " + (t.on ? "on" : "off");
+    btn.dataset.status = t.key;
+    btn.innerHTML = `${t.label}<span class="toggle-state">${t.on ? "ON" : "OFF"}</span>`;
+    document.body.classList.toggle("hide-" + t.key, !t.on);
+    btn.addEventListener("click", () => {
+      const on = !btn.classList.contains("on");
+      btn.classList.toggle("on", on);
+      btn.classList.toggle("off", !on);
+      btn.querySelector(".toggle-state").textContent = on ? "ON" : "OFF";
+      document.body.classList.toggle("hide-" + t.key, !on);
+    });
+    tray.appendChild(btn);
+  });
+})();
+
+// Build pills — one per RELEASED episode, in order. Tag-only for a compact
+// stack; full title shows on hover.
+(function buildPills() {
+  const tray = document.getElementById("ep-pill-tray");
+  EPISODES.filter(e => e.released).forEach(ep => {
+    const btn = document.createElement("button");
+    btn.className = "ep-pill";
+    btn.dataset.episodeId = ep.id;
+    btn.title = ep.title || "";
+    btn.textContent = ep.tag;
+    btn.addEventListener("click", () => toggleEpisode(ep.id));
+    tray.appendChild(btn);
+  });
+})();
+
+function toggleEpisode(epId) {
+  if (!EPISODE_BY_ID[epId]) return;
+  if (activeEpisodeId === epId) {
+    clearEpisode();
+    return;
+  }
+  activeEpisodeId = epId;
+  document.body.classList.add("highlight-mode");
+  const seats = seatsForEpisode(epId);
+  const hl = EPISODE_HIGHLIGHTS[epId];
+  document.querySelectorAll(".card").forEach(card => {
+    card.classList.remove("ep-highlighted", "ep-conductor");
+    const sid = card.dataset.seatId;
+    if (seats.has(sid)) card.classList.add("ep-highlighted");
+    if (hl && hl.conductor === sid) card.classList.add("ep-conductor");
+  });
+  document.querySelectorAll(".ep-pill").forEach(p => {
+    p.classList.toggle("active", p.dataset.episodeId === epId);
+  });
+}
+
+function clearEpisode() {
+  activeEpisodeId = null;
+  document.body.classList.remove("highlight-mode");
+  document.querySelectorAll(".card").forEach(card => {
+    card.classList.remove("ep-highlighted", "ep-conductor");
+  });
+  document.querySelectorAll(".ep-pill").forEach(p => p.classList.remove("active"));
+}
+
+// Sidebar open / populate / close
+// Build the accountability rows for one seat (shared by seat + person sidebars).
+function buildAccRows(seatId) {
+  const seat = SEATS.find(s => s.id === seatId);
+  if (!seat) return "";
+  const detail = ACC_DETAIL[seatId] || {};
+  return (seat.acc || []).map(accName => {
+    const subs = detail[accName];
+    const tags = accStatuses(seatId, accName).map(st => {
+      const meta = STATUS_META[st];
+      return meta ? `<span class="${meta.badgeClass}">${meta.label}</span>` : "";
+    }).join("");
+    const pausedClass = isWhollyPaused(seatId, accName) ? " paused" : "";
+    const movedFrom = (ACC_MOVED[seatId] || {})[accName];
+    const movedMark = movedFrom ? `<span class="sb-moved-mark">↳ moved</span>` : "";
+    const movedLine = movedFrom ? `<div class="sb-moved-note">${movedFrom}</div>` : "";
+    if (!subs) {
+      return `<div class="sb-acc-row${pausedClass}" onclick="toggleSub(this)"><div class="sb-acc-name">${accName}${tags}${movedMark}</div>${movedLine}</div>`;
+    }
+    const subItems = subs.map(s => {
+      const st = subStatus(s);
+      const meta = st ? STATUS_META[st] : null;
+      const stClass = meta ? " " + meta.subClass : "";
+      const badge = meta ? `<span class="${meta.badgeClass}">${meta.label}</span>` : "";
+      const note = s.note ? `<div class="sb-sub-note${st ? " " + st : ""}">${s.note}</div>` : "";
+      const epLinks = renderEpisodeLinks(s);
+      return `
+        <div class="sb-sub-item${stClass}">
+          <span class="arrow">→</span>
+          <span><span class="sub-name">${s.name}</span>${badge}</span>
+        </div>
+        ${note}
+        ${epLinks}`;
+    }).join("");
+    return `
+      <div class="sb-acc-row${pausedClass}" onclick="toggleSub(this)">
+        <div class="sb-acc-name">${accName}${tags}${movedMark}</div>
+        ${movedLine}
+        <div class="sb-sub-items">${subItems}</div>
+      </div>`;
+  }).join("");
+}
+
+// Org mode: a person's sidebar stacks one section per role (seat) they hold.
+function openPersonSidebar(personId) {
+  const node = NODES.find(n => n.id === personId);
+  if (!node) return;
+  selectedSeatId = personId;
+  document.querySelectorAll(".card").forEach(c => c.classList.toggle("selected", c.dataset.seatId === personId));
+  const empTag = node.contractor ? `<span class="emp-tag">Contractor</span>` : "";
+  const sections = node.seatIds.map(sid => {
+    const seat = SEATS.find(s => s.id === sid);
+    return `<div class="sb-role-label">${seat.title}</div><div class="sb-acc-block">${buildAccRows(sid)}</div>`;
+  }).join("");
+  document.getElementById("sidebar-body").innerHTML = `
+    <div class="sb-seat-label">Person</div>
+    <div class="sb-title">${node.title}</div>
+    <div class="sb-occupant">${node.roles}</div>
+    <div class="sb-meta">${node.emp}${empTag}<br>${node.loc}</div>
+    ${sections}
+  `;
+  document.getElementById("sidebar").classList.add("open");
+}
+
+function openSidebar(seatId) {
+  if (MODE === "org") { openPersonSidebar(seatId); return; }
+  const seat = SEATS.find(s => s.id === seatId);
+  if (!seat) return;
+  selectedSeatId = seatId;
+  document.querySelectorAll(".card").forEach(c => {
+    c.classList.toggle("selected", c.dataset.seatId === seatId);
+  });
+
+  const occNames = seat.occupants.map(o => OCCUPANTS[o] || o);
+  const displayName = seat.nameOverride || (seat.hiring ? "HIRING" : (occNames.join(" / ") || "—"));
+  const market = seat.market ? `<div class="sb-seat-label" style="color:var(--text-faint);margin-bottom:4px">${seat.market}</div>` : "";
+
+  // Episode banner if this seat is in the active episode's highlight overlay
+  let epBanner = "";
+  if (activeEpisodeId) {
+    const hl = EPISODE_HIGHLIGHTS[activeEpisodeId];
+    const ep = EPISODE_BY_ID[activeEpisodeId];
+    if (hl && hl.notes[seatId]) {
+      epBanner = `
+        <div class="sb-ep-banner">
+          <div class="ep-tag">${ep.tag} · ${hl.label}</div>
+          <div class="ep-text">${hl.notes[seatId]}</div>
+        </div>`;
+    }
+  }
+
+  const accRows = buildAccRows(seatId);
+
+  const kpisBlock = (seat.kpis && seat.kpis.length)
+    ? `<div class="sb-kpis"><div class="label">Key KPIs</div>${seat.kpis.join(" · ")}</div>`
+    : "";
+
+  const seatStatus = SEAT_STATUS[seatId];
+  const seatBadge = (seatStatus && STATUS_META[seatStatus])
+    ? `<span class="${STATUS_META[seatStatus].badgeClass}">${STATUS_META[seatStatus].label}</span>` : "";
+
+  document.getElementById("sidebar-body").innerHTML = `
+    ${market}
+    <div class="sb-seat-label">Seat</div>
+    <div class="sb-title">${seat.title}${seatBadge}</div>
+    <div class="sb-occupant">${displayName}</div>
+    <div class="sb-meta">${seat.emp}<br>${seat.loc}</div>
+    ${epBanner}
+    <div class="sb-acc-block">${accRows}</div>
+    ${kpisBlock}
+  `;
+  document.getElementById("sidebar").classList.add("open");
+}
+
+function closeSidebar() {
+  document.getElementById("sidebar").classList.remove("open");
+  selectedSeatId = null;
+  document.querySelectorAll(".card").forEach(c => c.classList.remove("selected"));
+}
+
+function toggleSub(rowEl) {
+  const subs = rowEl.querySelector(".sb-sub-items");
+  if (subs) subs.classList.toggle("revealed");
+}
+
+// Wire up card clicks. We do this AFTER render() ran, but cards are
+// also re-rendered if the script is re-run. Use event delegation on canvas.
+document.getElementById("canvas").addEventListener("click", (e) => {
+  // Don't treat a drag-release as a click
+  if (justDragged) { justDragged = false; return; }
+  const card = e.target.closest(".card");
+  if (!card) return;
+  const seatId = card.dataset.seatId;
+  if (seatId) openSidebar(seatId);
+});
+
+// Distinguish click from drag — only open sidebar on actual clicks
+let justDragged = false;
+let dragStartXForClick = 0, dragStartYForClick = 0;
+viewport.addEventListener("mousedown", (e) => {
+  dragStartXForClick = e.clientX;
+  dragStartYForClick = e.clientY;
+});
+viewport.addEventListener("mouseup", (e) => {
+  const dx = Math.abs(e.clientX - dragStartXForClick);
+  const dy = Math.abs(e.clientY - dragStartYForClick);
+  justDragged = (dx > 4 || dy > 4);
+});
+
+// ESC closes sidebar; also clears episode highlight
+window.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    closeSidebar();
+    if (activeEpisodeId) clearEpisode();
+  }
+});
+</script>
+</body>
+</html>

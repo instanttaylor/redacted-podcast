@@ -25,6 +25,28 @@ This repo is the **companion**. Full show notes live with each episode (linked b
 
 <table>
 <tr>
+<td width="300"><a href="005-the-rage-log/"><i>thumbnail TBD</i></a></td>
+<td valign="top">
+
+### EP 05 · The Rage Log: AI-Powered Lead Gen, a Living Landing Page, and the Trick That Stops Claude From Making the Same Mistake Twice
+`2026-07-01` · _TBD_
+
+▶ [Watch](_TBD_) · 🎧 [Apple](_TBD_) · [Spotify](https://open.spotify.com/show/1aMrtX8LnIU2w5yoT4uolb) · 📝 [Show notes](_TBD_) · 📁 [Files](005-the-rage-log/)
+
+</td>
+</tr>
+<tr>
+<td width="300"><a href="https://www.youtube.com/watch?v=flnJJIhY_gk"><img src="https://img.youtube.com/vi/flnJJIhY_gk/hqdefault.jpg" width="300" alt="Episode 4"></a></td>
+<td valign="top">
+
+### EP 04 · We Stopped Using Claude Code Mid-Build. Here's What We Built Instead
+`2026-06-17` · 41:36
+
+▶ [Watch](https://www.youtube.com/watch?v=flnJJIhY_gk) · 🎧 [Apple](https://podcasts.apple.com/us/podcast/redacted-episode-4-we-stopped-using-claude-code-mid/id1774076494?i=1000773076948) · [Spotify](https://open.spotify.com/show/1aMrtX8LnIU2w5yoT4uolb) · 📝 [Show notes](https://www.tweenertimes.com/p/redacted-episode-4-we-stopped-using) · 📁 [Files](004-stopped-using-claude-code/)
+
+</td>
+</tr>
+<tr>
 <td width="300"><a href="https://www.youtube.com/watch?v=zWtqq6vLVmo"><img src="https://img.youtube.com/vi/zWtqq6vLVmo/hqdefault.jpg" width="300" alt="Episode 3"></a></td>
 <td valign="top">
 
@@ -59,7 +81,7 @@ This repo is the **companion**. Full show notes live with each episode (linked b
 </tr>
 </table>
 
-> Folders `004/`–`015/` are pre-created stubs; each gets a title-slug name once the episode airs.
+> Folders `006/`–`015/` are pre-created stubs; each gets a title-slug name once the episode airs.
 
 ## Want to be on the show?
 

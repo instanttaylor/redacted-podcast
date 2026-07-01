@@ -2,6 +2,24 @@
 
 Small, dependency-free helpers for maintaining the show-notes repo.
 
+## `render_svg.py`
+
+Renders a repo SVG to PNG deterministically, using the vendored **JetBrains Mono**
+font (`fonts/JetBrainsMono.ttf`, OFL) so brand assets regenerate identically on
+any machine — no font install, no fallback substitution, correct aspect ratio.
+
+```sh
+python3 tools/render_svg.py                     # assets/guest-grid.svg -> assets/guest-grid.png @2x
+python3 tools/render_svg.py path/to/foo.svg      # -> path/to/foo.png @2x
+python3 tools/render_svg.py foo.svg -o bar.png --scale 3
+```
+
+Editing a graphic (e.g. filling a cell in `assets/guest-grid.svg`) is a normal
+SVG edit; then run this to refresh the PNG the READMEs embed.
+
+**Requires `resvg`:** `brew install resvg` (or `cargo install resvg`). It's the
+only external dependency — the font is vendored, so nothing else is needed.
+
 ## `redacted_feed.py`
 
 Pulls [Redacted] episode metadata from three public sources and joins them into

@@ -18,4 +18,8 @@ _Intro — TBD once the Substack draft is ready (pulled during publish-week stag
 - **Get My Score** — the demo shown on-air — https://www.levitate.ai/getmyscore
 - **Simon Willison — Agentic Engineering Patterns** — https://simonwillison.net/2026/Feb/23/agentic-engineering-patterns/
 
+## Files shared on-air
+
+- **[`prospect-research/`](prospect-research/)** — Ben's pre-demo prospect-research skill: an agent team that researches a prospect across LinkedIn / web / CRM, adversarially fact-checks itself, and builds a single self-contained HTML dossier for a call. (Example company names genericized for publishing.)
+
 > **Didn't see what was shown on-air?** We don't always post everything — some of it stays redacted. **[Request a file →](mailto:contact@tweenerfund.com?subject=%5BREDACTED%5D%20Ep%207%20file%20request)**

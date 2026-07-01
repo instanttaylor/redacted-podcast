@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dossier - {{PROSPECT_NAME}} · {{COMPANY}}</title>
+<meta name="description" content="Pre-call field briefing on {{PROSPECT_NAME}} of {{COMPANY}}: who they are, how their work runs today, where AI can help, and what to ask.">
+<!--
+  PROSPECT RESEARCH DOSSIER TEMPLATE  (editorial "field briefing" style)
+  =====================================================================
+  Fill the {{PLACEHOLDERS}} and the example blocks; DO NOT rebuild this markup.
+  - The masthead + "60-second read" + watch-outs are the LIVE GLANCE (top of page).
+  - The labelled sections below are the brief Ben reads beforehand. Drop a whole
+    section if you genuinely have nothing for it, rather than padding it.
+  - CONFIDENCE: tag any nontrivial claim with a badge:
+        <span class="conf v">verified</span>   (primary source or 2+ independent)
+        <span class="conf i">inferred</span>    (reasoned from indirect evidence)
+        <span class="conf u">unknown</span>     (gap -> becomes a discovery question)
+  - NO EM DASHES anywhere, including the &mdash; / &ndash; / literal — entities. Use commas, hyphens, or &middot;.
+  - Only name a tool/integration if a real path exists; else say "validate on call".
+  - Opportunities are the tone-accented cards: data-tone="rust" (hero), "sage" (core),
+    "gold" (bold/speculative), "ink" (no-risk on-ramp). Each carries a pill tag.
+  - Repeating blocks are marked <!-- REPEAT ... -->; one filled example is shown.
+  - Self-contained: system fonts only, no external requests. Embed any avatar as a data: URI
+    (or use a monogram .avatar.mono). Never hot-link an image.
+-->
+<style>
+  :root{
+    --paper:#f1e9da;
+    --paper-deep:#e7dcc7;
+    --card:#faf5ea;
+    --ink:#221c15;
+    --ink-soft:#5d5142;
+    --ink-faint:#8a7c69;
+    --rust:#a23c1b;
+    --rust-deep:#84300f;
+    --gold:#a47e2c;
+    --sage:#586049;
+    --line:rgba(34,28,21,.14);
+    --line-strong:rgba(34,28,21,.28);
+    --li:#0a66c2;
+    --display:"Didot","Bodoni 72","Hoefler Text",Georgia,serif;
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Charter,Georgia,serif;
+    --mono:"SFMono-Regular","SF Mono",Menlo,"Courier New",monospace;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background-color:var(--paper);
+    background-image:
+      radial-gradient(120% 90% at 100% 0%, rgba(164,126,44,.10), transparent 55%),
+      radial-gradient(100% 80% at 0% 0%, rgba(162,60,27,.08), transparent 50%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E");
+    color:var(--ink);
+    font-family:var(--serif);
+    font-size:17px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:940px;margin:0 auto;padding:0 22px 90px}
+
+  /* ---- sticky top rule ---- */
+  .topbar{position:sticky;top:0;z-index:20;background:rgba(241,233,218,.88);backdrop-filter:saturate(140%) blur(8px);-webkit-backdrop-filter:saturate(140%) blur(8px);border-bottom:1px solid var(--line)}
+  .topbar .inner{max-width:940px;margin:0 auto;padding:9px 22px;display:flex;align-items:center;justify-content:space-between;gap:14px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft)}
+  .topbar b{color:var(--rust);font-weight:600}
+  .topbar .nav{display:flex;gap:14px;flex-wrap:wrap}
+  .topbar a{color:var(--ink-soft);text-decoration:none}
+  .topbar a:hover,.topbar a:focus-visible{color:var(--rust)}
+  @media(max-width:680px){.topbar .nav{display:none}}
+
+  /* ---- masthead ---- */
+  header.mast{padding:54px 0 26px;border-bottom:3px double var(--line-strong)}
+  .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.34em;text-transform:uppercase;color:var(--rust);margin:0 0 14px}
+  h1.title{font-family:var(--display);font-weight:400;font-size:clamp(48px,10vw,104px);line-height:.92;letter-spacing:-.01em;margin:0;text-wrap:balance}
+  h1.title em{font-style:italic;color:var(--rust)}
+  .subtitle{font-family:var(--serif);font-style:italic;font-size:clamp(18px,3vw,24px);color:var(--ink-soft);margin:16px 0 0;max-width:44ch;line-height:1.35}
+  .dateline{margin-top:24px;font-family:var(--mono);font-size:12px;letter-spacing:.05em;color:var(--ink-faint);text-transform:uppercase}
+  .dateline b{color:var(--rust);font-weight:600}
+
+  /* ---- stat strip ---- */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin:30px 0 0}
+  .stat{background:var(--paper);padding:16px 14px;text-align:center}
+  .stat .n{font-family:var(--display);font-size:clamp(22px,4vw,32px);line-height:1.05;color:var(--rust)}
+  .stat .l{font-family:var(--mono);font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-soft);margin-top:9px}
+  @media(max-width:560px){.stats{grid-template-columns:repeat(2,1fr)}}
+
+  /* ---- section label ---- */
+  .seclabel{font-family:var(--mono);font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--ink-faint);margin:54px 0 16px;display:flex;align-items:center;gap:12px}
+  .seclabel::after{content:"";flex:1;height:1px;background:var(--line)}
+
+  /* ---- 60-second read (drop-cap note + lists) ---- */
+  .note p{margin:0 0 14px;font-size:18px}
+  .note .lead{font-size:20px;line-height:1.5}
+  .note .lead .drop{float:left;font-family:var(--display);font-size:72px;line-height:.66;padding:8px 10px 0 0;color:var(--rust)}
+  .note strong{font-weight:600}
+  .readcols{display:grid;grid-template-columns:1.3fr 1fr;gap:34px;margin-top:10px}
+  @media(max-width:720px){.readcols{grid-template-columns:1fr;gap:20px}}
+  .minilabel{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 6px}
+  .priority-list{list-style:none;margin:6px 0 0;padding:0;counter-reset:p}
+  .priority-list li{position:relative;padding:11px 0 11px 44px;border-top:1px solid var(--line);counter-increment:p;font-size:16px;line-height:1.45}
+  .priority-list li::before{content:counter(p);position:absolute;left:0;top:10px;width:28px;height:28px;border-radius:50%;border:1.5px solid var(--rust);color:var(--rust);font-family:var(--display);font-size:15px;display:grid;place-items:center}
+  .priority-list b{font-weight:600}
+  .askfirst{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:9px}
+  .askfirst li{font-style:italic;font-size:16px;line-height:1.4;padding-left:16px;position:relative}
+  .askfirst li::before{content:"\201C";position:absolute;left:0;top:0;color:var(--rust);font-family:var(--display);font-size:22px;line-height:1}
+
+  /* ---- watch-outs (read before you dial) ---- */
+  .watch{background:var(--rust-deep);background-image:linear-gradient(155deg,#8c350f,#6c2708);color:#f6e9da;border-radius:3px;padding:24px 26px;margin-top:6px;box-shadow:0 18px 40px -24px rgba(108,39,8,.8)}
+  .watch h3{font-family:var(--mono);font-size:11px;letter-spacing:.26em;text-transform:uppercase;margin:0 0 14px;color:#f1c9a3}
+  .watch ul{margin:0;padding:0;list-style:none;display:grid;gap:13px}
+  .watch li{display:flex;gap:13px;font-size:16px;line-height:1.45}
+  .watch li span.ic{flex:none;font-size:13px;opacity:.9;margin-top:3px}
+  .watch b{color:#fff;font-weight:600}
+
+  /* ---- profile + opportunity cards ---- */
+  .brief{background:var(--card);border:1px solid var(--line);border-radius:4px;margin-bottom:22px;overflow:hidden;position:relative;box-shadow:0 14px 34px -28px rgba(34,28,21,.55);opacity:0;transform:translateY(18px);animation:rise .7s cubic-bezier(.2,.7,.2,1) forwards;animation-delay:calc(var(--i,0) * 70ms)}
+  @keyframes rise{to{opacity:1;transform:none}}
+  .brief::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--accent,var(--ink-soft))}
+  .brief[data-tone="rust"]{--accent:var(--rust)}
+  .brief[data-tone="gold"]{--accent:var(--gold)}
+  .brief[data-tone="sage"]{--accent:var(--sage)}
+  .brief[data-tone="ink"]{--accent:#9b8c77}
+  .bhead{display:flex;gap:18px;padding:22px 26px 18px;border-bottom:1px solid var(--line);align-items:flex-start;flex-wrap:wrap}
+  .rankbadge{flex:none;width:46px;height:46px;border-radius:50%;border:1.5px solid var(--accent);color:var(--accent);font-family:var(--display);font-size:24px;display:grid;place-items:center}
+  .htext{flex:1;min-width:220px}
+  .tags{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:9px}
+  .tag{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:4px 9px;border-radius:999px;border:1px solid var(--line-strong);color:var(--ink-soft)}
+  .tag.k{background:var(--accent);border-color:transparent;color:#faf5ea}
+  .tag.warn{border-color:var(--rust);color:var(--rust)}
+  .htext h2{font-family:var(--display);font-weight:400;font-size:clamp(25px,4.2vw,33px);line-height:1.02;margin:0;text-wrap:balance}
+  .org{font-family:var(--serif);font-style:italic;color:var(--ink-soft);margin:7px 0 0;font-size:16px}
+
+  /* avatar + linkedin chip */
+  .who-photo{flex:none;display:flex;flex-direction:column;align-items:center;gap:7px;width:72px}
+  .avatar{width:66px;height:66px;border-radius:50%;object-fit:cover;display:block;border:2px solid var(--line-strong);background:var(--paper-deep);box-shadow:0 5px 14px -7px rgba(34,28,21,.6)}
+  .avatar.mono{display:grid;place-items:center;font-family:var(--display);font-size:22px;color:var(--rust);background:linear-gradient(160deg,#efe3cf,#dccdb2)}
+  .li{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);text-decoration:none;border:1px solid var(--line);border-radius:4px;padding:2px 7px;display:inline-flex;gap:4px;align-items:center}
+  .li b{font-weight:600;color:var(--li)}
+  .li:hover,.li:focus-visible{color:var(--li);border-color:var(--li)}
+
+  /* two-column body (Who / Context / Play) */
+  .bbody{display:grid;grid-template-columns:1.05fr 1fr;gap:0}
+  @media(max-width:720px){.bbody{grid-template-columns:1fr}}
+  .col{padding:20px 26px}
+  .col+.col{border-left:1px solid var(--line)}
+  @media(max-width:720px){.col+.col{border-left:none;border-top:1px solid var(--line)}}
+  .col h4{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--rust);margin:0 0 8px}
+  .col h4:not(:first-child){margin-top:18px}
+  .col p{margin:0;font-size:15.5px;line-height:1.55}
+  .col p+p{margin-top:8px}
+  .col .muted{color:var(--ink-soft)}
+  .corr{border-left:3px solid var(--gold);padding-left:11px;margin-top:10px !important;background:rgba(164,126,44,.08)}
+  .plays{margin:0;padding:0;list-style:none;display:grid;gap:10px}
+  .plays li{position:relative;padding-left:18px;font-size:15.5px;line-height:1.5}
+  .plays li::before{content:"";position:absolute;left:0;top:9px;width:6px;height:6px;background:var(--accent,var(--rust));transform:rotate(45deg)}
+  .plays b{font-weight:600}
+  .crm-meta{font-family:var(--mono);font-size:11.5px;letter-spacing:.02em;color:var(--ink-soft);line-height:1.8;margin:0}
+  .crm-meta .v{color:var(--ink)}
+
+  /* opportunity body + meta */
+  .obody{padding:18px 26px 22px}
+  .obody .opain{margin:0 0 14px;font-size:16px;line-height:1.55}
+  .ometa{display:grid;gap:9px;border-top:1px solid var(--line);padding-top:13px}
+  .ometa .row{display:grid;grid-template-columns:74px 1fr;gap:12px;align-items:baseline}
+  .ometa .ok{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint)}
+  .ometa .roi .ok,.ometa .ok.roi{color:var(--sage)}
+  .ometa .val{font-size:15px;line-height:1.5}
+  .ometa .ask .val,.ometa .val.ask{font-style:italic;color:var(--rust-deep)}
+
+  /* ice-breaker */
+  .ice{margin:0;padding:18px 26px 22px;background:linear-gradient(180deg,rgba(164,126,44,.10),rgba(164,126,44,.03));border-top:1px solid var(--line)}
+  .ice .lab{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .ice .lab::before{content:"\2756";color:var(--gold)}
+  .ice p{margin:0;font-family:var(--serif);font-size:16.5px;line-height:1.5}
+  .ice .say{font-style:italic;color:var(--rust-deep)}
+  .ice .src{display:block;margin-top:8px;font-family:var(--mono);font-size:10.5px;letter-spacing:.03em;color:var(--ink-faint)}
+
+  /* stack + question list rows */
+  .intl{border:1px solid var(--line);border-radius:4px;background:var(--card);overflow:hidden}
+  .intl .row{display:flex;gap:18px;align-items:baseline;padding:14px 22px}
+  .intl .row+.row{border-top:1px solid var(--line)}
+  .intl .rt{font-family:var(--serif);font-weight:600;font-size:16px;flex:none;width:200px}
+  .intl .rt small{display:block;font-family:var(--mono);font-size:9px;letter-spacing:.04em;color:var(--ink-faint);text-transform:uppercase;margin-top:3px;font-weight:400}
+  @media(max-width:620px){.intl .row{flex-direction:column;gap:5px} .intl .rt{width:auto}}
+  .intl .rb{flex:1;font-size:15.5px;line-height:1.5;color:var(--ink-soft)}
+  .qrow .rt{width:auto;flex:1;font-weight:400;font-size:16.5px;font-style:italic;color:var(--ink)}
+  .qrow .why{flex:none;max-width:34%;font-family:var(--mono);font-size:10px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-faint);text-align:right;font-style:normal}
+  @media(max-width:620px){.qrow .why{text-align:left;max-width:none}}
+
+  /* confidence pill */
+  .conf{font-family:var(--mono);font-size:8.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;border:1px solid currentColor;border-radius:999px;padding:1px 7px;vertical-align:middle;margin-left:5px;white-space:nowrap}
+  .conf.v{color:var(--sage)} .conf.i{color:var(--gold)} .conf.u{color:var(--ink-faint)}
+
+  /* footer */
+  footer{margin-top:60px;padding-top:24px;border-top:3px double var(--line-strong);font-family:var(--mono);font-size:11px;letter-spacing:.05em;color:var(--ink-faint);line-height:1.8}
+  footer b{color:var(--ink-soft);font-weight:600}
+  .bottomline{font-family:var(--serif);font-style:normal;font-size:16px;line-height:1.5;color:var(--ink);max-width:70ch;margin:14px 0 0}
+
+  @media print{body{background:#fff} .topbar{display:none} .brief{opacity:1;transform:none;animation:none;break-inside:avoid;box-shadow:none} .watch{box-shadow:none}}
+  @media(prefers-reduced-motion:reduce){.brief{opacity:1;transform:none;animation:none}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="inner">
+    <span><b>Prospect Dossier</b> &middot; {{PROSPECT_NAME}}</span>
+    <nav class="nav">
+      <a href="#read">Read</a><a href="#snapshot">Snapshot</a><a href="#stack">Stack</a><a href="#today">Today</a><a href="#ai">Where AI helps</a><a href="#ask">Questions</a>
+    </nav>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- ============ MASTHEAD ============ -->
+  <header class="mast">
+    <p class="kicker">Field briefing &middot; AI Solutions {{CALL_TYPE}} &middot; prepared {{DATE}}</p>
+    <h1 class="title">{{PROSPECT_NAME}}</h1>
+    <p class="subtitle">{{ROLE}}, {{COMPANY}} &middot; {{LOCATION}}</p>
+    <p class="dateline"><b>{{WHEN_YOUR_TZ}}</b> &middot; their clock {{WHEN_THEIR_TZ}} &middot; {{DURATION}} &middot; {{CALL_MODE}} &middot; deal owner {{DEAL_OWNER}}</p>
+    <div class="stats">
+      <!-- 4 quick orienting facts. Swap labels as fits the prospect. -->
+      <div class="stat"><div class="n">{{STAT_1_N}}</div><div class="l">{{STAT_1_L}}</div></div>
+      <div class="stat"><div class="n">{{STAT_2_N}}</div><div class="l">{{STAT_2_L}}</div></div>
+      <div class="stat"><div class="n">{{STAT_3_N}}</div><div class="l">{{STAT_3_L}}</div></div>
+      <div class="stat"><div class="n">{{STAT_4_N}}</div><div class="l">{{STAT_4_L}}</div></div>
+    </div>
+  </header>
+
+  <!-- ============ 60-SECOND READ (the live glance) ============ -->
+  <p class="seclabel" id="read">The 60-second read</p>
+  <div class="note">
+    <p class="lead"><span class="drop">{{DROP_LETTER}}</span>{{OVERVIEW_who_they_are_where_the_hours_go_and_the_one_move_that_wins_the_room}}</p>
+    <div class="readcols">
+      <div>
+        <p class="minilabel">Where AI helps (raise in this order)</p>
+        <ol class="priority-list">
+          <li><b>{{TOP_OPP_1_NAME}}</b> {{TOP_OPP_1_oneline}}</li>
+          <li><b>{{TOP_OPP_2_NAME}}</b> {{TOP_OPP_2_oneline}}</li>
+          <li><b>{{TOP_OPP_3_NAME}}</b> {{TOP_OPP_3_oneline}}</li>
+        </ol>
+      </div>
+      <div>
+        <p class="minilabel">Ask first</p>
+        <ul class="askfirst">
+          <li>{{TOP_Q_1}}</li>
+          <li>{{TOP_Q_2}}</li>
+          <li>{{TOP_Q_3}}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ WATCH-OUTS / READ BEFORE YOU DIAL (delete if no real flags) ============ -->
+  <p class="seclabel">Read before you dial</p>
+  <div class="watch">
+    <h3>Things that will bite if you don't plan for them</h3>
+    <ul>
+      <!-- REPEAT one <li> per flag: corrections, no-shows, timezone traps, sensitivities, data conflicts -->
+      <li><span class="ic">&#9648;</span><div>{{FLAG_TEXT_with_bold_key_facts}}</div></li>
+    </ul>
+  </div>
+
+  <!-- ============ SNAPSHOT (profile card: who + context + ice-breaker) ============ -->
+  <p class="seclabel" id="snapshot">Who you're meeting</p>
+  <article class="brief" data-tone="rust" style="--i:1">
+    <div class="bhead">
+      <div class="who-photo">
+        <!-- avatar: embed photo as data: URI, OR use a monogram -->
+        <div class="avatar mono" aria-hidden="true">{{INITIALS}}</div>
+        <a class="li" href="{{LINKEDIN_URL}}" target="_blank" rel="noopener"><b>in</b> &#8599;</a>
+      </div>
+      <div class="htext">
+        <div class="tags"><span class="tag k">{{STAGE_TAG}}</span><span class="tag">{{VERTICAL}}</span></div>
+        <h2>{{PROSPECT_NAME}}</h2>
+        <p class="org">{{ROLE}} &middot; {{COMPANY}}</p>
+      </div>
+    </div>
+    <div class="bbody">
+      <div class="col">
+        <h4>Who</h4>
+        <p>{{WHO_one_or_two_sentences_role_authority_reputation}} <span class="conf v">verified</span></p>
+        <h4>The business</h4>
+        <p>{{WHAT_THE_BUSINESS_IS_size_age_model_how_they_make_money}} <span class="conf v">verified</span></p>
+        <!-- REPEAT .corr per reconciled conflict; delete if none -->
+        <p class="corr"><b>Correction &middot; {{TOPIC}}:</b> {{WHAT_THE_SOURCES_GOT_WRONG_and_the_truth}}</p>
+      </div>
+      <div class="col">
+        <h4>What they offer</h4>
+        <ul class="plays">
+          <!-- REPEAT per service line; quote their own site words where possible -->
+          <li>{{SERVICE_LINE}} <span class="conf v">verified</span></li>
+        </ul>
+        <h4>Read on their state of mind</h4>
+        <p class="muted">{{HOW_THEY_ARE_LIKELY_FEELING_and_what_it_means_for_the_call}} <span class="conf i">inferred</span></p>
+      </div>
+    </div>
+    <div class="ice">
+      <div class="lab">Ice-breaker</div>
+      <!-- the best TRUE, sourced, non-creepy rapport detail. Delete the .ice block if you have none. -->
+      <p><span class="say">{{RAPPORT_OPENER_phrased_as_something_to_say}}</span> {{WHY_IT_LANDS}}
+      <span class="src">Source: {{SOURCE}}. Confidence: {{high_or_medium}}. {{ANY_DO_NOT_SAY_caveat}}</span></p>
+    </div>
+  </article>
+
+  <!-- ============ THE STACK THEY RUN ============ -->
+  <p class="seclabel" id="stack">The stack they run</p>
+  <div class="intl">
+    <!-- REPEAT one .row per tool; angle = native / Zapier / CSV / API-MCP / "validate on call" -->
+    <div class="row">
+      <div class="rt">{{TOOL_NAME}} <span class="conf i">inferred</span><small>{{WHAT_IT_IS}}</small></div>
+      <div class="rb">{{INTEGRATION_ANGLE_only_if_a_real_path_exists_else_validate}}</div>
+    </div>
+  </div>
+
+  <!-- ============ HOW IT RUNS TODAY ============ -->
+  <p class="seclabel" id="today">How it runs today</p>
+  <div class="note">
+    <p style="font-style:italic;color:var(--ink-soft);font-size:17px;margin-bottom:16px">{{ONE_LINE_FRAME_ideally_a_quote_in_their_words}}</p>
+    <ol class="priority-list">
+      <!-- REPEAT one <li> per manual workflow; lead with the biggest time-sink -->
+      <li><b>{{WORKFLOW_NAME}}.</b> {{HOW_IT_IS_DONE_BY_HAND_today}}</li>
+    </ol>
+  </div>
+
+  <!-- ============ WHERE AI CAN HELP (opportunity cards) ============ -->
+  <p class="seclabel" id="ai">Where AI can help</p>
+
+  <!-- HERO: exactly one. data-tone="rust" -->
+  <article class="brief" data-tone="rust" style="--i:1">
+    <div class="bhead">
+      <div class="rankbadge">1</div>
+      <div class="htext">
+        <div class="tags"><span class="tag k">Hero build</span><span class="tag">{{LEVITATE_OR_CUSTOM}}</span></div>
+        <h2>{{HERO_OPP_NAME}}</h2>
+      </div>
+    </div>
+    <div class="obody">
+      <p class="opain">{{THE_BIG_MANUAL_TIME_SINK_it_attacks_in_their_terms}}</p>
+      <div class="ometa">
+        <div class="row roi"><span class="ok roi">ROI</span><span class="val">{{ROI_ESTIMATE_plus_stated_assumption}} <span class="conf i">inferred</span></span></div>
+        <div class="row"><span class="ok">Build</span><span class="val">{{MECHANISM_only_if_real_path}}</span></div>
+        <div class="row ask"><span class="ok">Ask</span><span class="val ask">{{VALIDATING_DISCOVERY_QUESTION}}</span></div>
+      </div>
+    </div>
+  </article>
+
+  <!-- CORE / FAST WINS: data-tone="sage" (Levitate-native) or "ink" (no-risk on-ramp). REPEAT 2-4. -->
+  <article class="brief" data-tone="sage" style="--i:2">
+    <div class="bhead">
+      <div class="rankbadge">2</div>
+      <div class="htext">
+        <div class="tags"><span class="tag k">Fast win</span><span class="tag">Levitate-native</span></div>
+        <h2>{{OPP_NAME}}</h2>
+      </div>
+    </div>
+    <div class="obody">
+      <p class="opain">{{THE_MANUAL_PAIN_IT_REMOVES}}</p>
+      <div class="ometa">
+        <div class="row roi"><span class="ok roi">ROI</span><span class="val">{{ROI_ESTIMATE}} <span class="conf i">inferred</span></span></div>
+        <div class="row"><span class="ok">Build</span><span class="val">{{MECHANISM}}</span></div>
+        <div class="row ask"><span class="ok">Ask</span><span class="val ask">{{VALIDATING_DISCOVERY_QUESTION}}</span></div>
+      </div>
+    </div>
+  </article>
+
+  <!-- BOLD / outside the box: data-tone="gold". 0-2. MUST be flagged speculative. Delete if none. -->
+  <article class="brief" data-tone="gold" style="--i:3">
+    <div class="bhead">
+      <div class="rankbadge">{{N}}</div>
+      <div class="htext">
+        <div class="tags"><span class="tag k">Bold</span><span class="tag warn">Speculative</span></div>
+        <h2>{{BOLD_OPP_NAME}}</h2>
+      </div>
+    </div>
+    <div class="obody">
+      <p class="opain">{{THE_IDEA_and_why_it_could_be_big}}</p>
+      <div class="ometa">
+        <div class="row roi"><span class="ok roi">Upside</span><span class="val">{{POTENTIAL_clearly_speculative}} <span class="conf u">unknown</span></span></div>
+        <div class="row"><span class="ok">Caveat</span><span class="val">{{WHAT_WOULD_NEED_TO_BE_TRUE_or_validated}}</span></div>
+        <div class="row ask"><span class="ok">Ask</span><span class="val ask">{{QUESTION_that_tests_the_premise}}</span></div>
+      </div>
+    </div>
+  </article>
+
+  <!-- ============ CRM CONTEXT & DEAL STATE (delete if truly cold) ============ -->
+  <p class="seclabel">CRM context &amp; deal state</p>
+  <div class="brief" data-tone="ink" style="--i:1">
+    <div class="obody">
+      <p class="crm-meta">
+        STAGE &middot; <span class="v">{{DEAL_STAGE}}</span><br>
+        OWNER &middot; <span class="v">{{DEAL_OWNER}}</span><br>
+        SOURCE &middot; <span class="v">{{HOW_THEY_CAME_IN}}</span><br>
+        PRIOR TOUCHES &middot; <span class="v">{{WHAT_HAS_HAPPENED_SO_FAR}}</span><br>
+        VOICED PAINS &middot; <span class="v">{{PAINS_ALREADY_ON_RECORD}}</span><br>
+        OBJECTIONS &middot; <span class="v">{{KNOWN_OBJECTIONS}}</span><br>
+        SIGNALS &middot; <span class="v">{{BUYING_SIGNALS_OR_RISKS}}</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- ============ DISCOVERY QUESTIONS ============ -->
+  <p class="seclabel" id="ask">How to run the call</p>
+  <div class="note">
+    <p style="font-style:italic;color:var(--ink-soft);font-size:17px;margin-bottom:16px">{{ONE_LINE_READ_on_how_to_play_it}}</p>
+  </div>
+  <div class="intl">
+    <!-- REPEAT one .row.qrow per question; .why tells Ben what to listen for -->
+    <div class="row qrow">
+      <div class="rt">{{QUESTION}}</div>
+      <div class="why">{{LISTEN_FOR}}</div>
+    </div>
+  </div>
+
+  <!-- ============ FOOTER ============ -->
+  <footer>
+    Compiled {{DATE}} &middot; Sources: {{SOURCE_LIST}}<br>
+    Confidence: <span class="conf v">verified</span> primary/2+ sources &middot; <span class="conf i">inferred</span> reasoned &middot; <span class="conf u">unknown</span> open question. {{LINKEDIN_PASS_NOTE_if_run_autonomously}}
+    <p class="bottomline"><b>Bottom line:</b> {{ONE_OR_TWO_SENTENCE_takeaway_who_they_are_where_hours_go_the_marquee_build_and_how_to_play_it}}</p>
+  </footer>
+
+</div>
+</body>
+</html>

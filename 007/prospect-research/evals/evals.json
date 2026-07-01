@@ -1,0 +1,29 @@
+{
+  "skill_name": "prospect-research",
+  "evals": [
+    {
+      "id": 1,
+      "name": "legal-rich-footprint",
+      "prompt": "I've got a follow-up call coming up with a mid-size law firm. Research them and build me a prospect dossier I can use to prep beforehand and glance at live during the call.",
+      "expected_output": "Self-contained HTML dossier saved to the client folder: header/logistics, read-before-you-dial flags, an at-a-glance cheat-sheet, snapshot with any size/scope corrections, fun facts (only if true/sourced), business model & services, the legal incumbent stack (Clio/MyCase/Word/e-filing) with integration angles, how-it-runs-today manual workflows, 3-5 Levitate-buildable AI opportunities grounded in the legal playbook (court-form/data re-entry, declaration drafting as the likely hero, email->tasks, intake/conflict-check) each with a ROI estimate and a validating discovery question, 1-2 flagged bold ideas, CRM context, a discovery-question bank, confidence badges throughout, and sources. No em dashes. Nothing invented.",
+      "files": [],
+      "assertions": []
+    },
+    {
+      "id": 2,
+      "name": "insurance-niche-thinner-data",
+      "prompt": "I'm meeting the owner of a commercial trucking insurance agency for an AI Solutions discovery call. Dig into them before the call and give me something to work from.",
+      "expected_output": "Self-contained HTML dossier with the insurance playbook applied (EZLynx/AMS/carrier portals/ACORD incumbent stack, re-quote/remarketing engine as likely hero, form-fill/ACORD automation, commission reconciliation, daily policy-context briefing), ROI estimates anchored on insurance signals, a discovery question per opportunity, and honest Unknown/confidence labeling where the public footprint is thin (this is a niche private agency). No invented facts; gaps turned into discovery questions.",
+      "files": [],
+      "assertions": []
+    },
+    {
+      "id": 3,
+      "name": "cold-net-new-cpa",
+      "prompt": "Got a discovery call booked with a small CPA / bookkeeping firm I haven't talked to yet. Build me a prospect dossier so I can prep.",
+      "expected_output": "Dossier that leans on the CPA playbook (bank-vs-QBO reconciliation as the clear hero quick-win, document-chasing nag agent, document parsing/auto-file, time-logging->QBO invoicing) and the compliance gate for tax PII, while being explicit that this is a cold prospect with limited prior context, converting the many unknowns into strong discovery questions.",
+      "files": [],
+      "assertions": []
+    }
+  ]
+}

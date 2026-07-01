@@ -25,13 +25,24 @@ This repo is the **companion**. Full show notes live with each episode (linked b
 
 <table>
 <tr>
-<td width="300"><a href="005-the-rage-log/"><i>thumbnail TBD</i></a></td>
+<td width="300"><a href="007/"><i>thumbnail TBD</i></a></td>
+<td valign="top">
+
+### EP 07 · _TBD_ (with Ben Pope)
+`_TBD_` · _TBD_
+
+▶ [Watch](_TBD_) · 🎧 [Apple](_TBD_) · [Spotify](https://open.spotify.com/show/1aMrtX8LnIU2w5yoT4uolb) · 📝 [Show notes](_TBD_) · 📁 [Files](007/)
+
+</td>
+</tr>
+<tr>
+<td width="300"><a href="https://www.youtube.com/watch?v=Pifilcj62Ks"><img src="https://img.youtube.com/vi/Pifilcj62Ks/hqdefault.jpg" width="300" alt="Episode 5"></a></td>
 <td valign="top">
 
 ### EP 05 · The Rage Log: AI-Powered Lead Gen, a Living Landing Page, and the Trick That Stops Claude From Making the Same Mistake Twice
-`2026-07-01` · _TBD_
+`2026-07-01` · 48:20
 
-▶ [Watch](_TBD_) · 🎧 [Apple](_TBD_) · [Spotify](https://open.spotify.com/show/1aMrtX8LnIU2w5yoT4uolb) · 📝 [Show notes](_TBD_) · 📁 [Files](005-the-rage-log/)
+▶ [Watch](https://www.youtube.com/watch?v=Pifilcj62Ks) · 🎧 [Apple](https://podcasts.apple.com/us/podcast/redacted-episode-5-the-rage-log-ai-powered-lead-gen/id1774076494?i=1000774957303) · [Spotify](https://open.spotify.com/show/1aMrtX8LnIU2w5yoT4uolb) · 📝 [Show notes](https://www.tweenertimes.com/p/redacted-episode-5-the-rage-log-ai) · 📁 [Files](005-the-rage-log/)
 
 </td>
 </tr>
@@ -81,7 +92,7 @@ This repo is the **companion**. Full show notes live with each episode (linked b
 </tr>
 </table>
 
-> Folders `006/`–`015/` are pre-created stubs; each gets a title-slug name once the episode airs.
+> Folders `006/` and `008/`–`015/` are pre-created stubs; `007/` has draft notes but keeps its number until it has a title. Each gets a title-slug name once the episode airs.
 
 ## Want to be on the show?
 

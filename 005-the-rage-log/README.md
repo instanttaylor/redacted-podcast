@@ -1,9 +1,9 @@
 # Episode 5 — The Rage Log: AI-Powered Lead Gen, a Living Landing Page, and the Trick That Stops Claude From Making the Same Mistake Twice
 
-**Released:** July 1, 2026 · **Runtime:** _TBD_
+**Released:** July 1, 2026 · **Runtime:** 48:20
 
-📝 **Full show notes:** [Read on tweenertimes.com](_TBD_)
-🎧 **Listen:** [Apple](_TBD_) · [Spotify](https://open.spotify.com/show/1aMrtX8LnIU2w5yoT4uolb) · [YouTube](_TBD_)
+📝 **Full show notes:** [Read on tweenertimes.com](https://www.tweenertimes.com/p/redacted-episode-5-the-rage-log-ai)
+🎧 **Listen:** [Apple](https://podcasts.apple.com/us/podcast/redacted-episode-5-the-rage-log-ai-powered-lead-gen/id1774076494?i=1000774957303) · [Spotify](https://open.spotify.com/show/1aMrtX8LnIU2w5yoT4uolb) · [YouTube](https://www.youtube.com/watch?v=Pifilcj62Ks)
 
 Episode 5 goes deep inside Offline. Same format as always: each host shows what they've actually been building this week, then Taylor closes with the story of turning a 36-hour AI rage spiral into something genuinely useful. Candid, specific, and honest about what's still not working.
 

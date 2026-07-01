@@ -72,15 +72,19 @@ The episode's show notes are **committed to `main`** — the `00N-slug/` folder,
 - **Dependencies:** Linear from Step 1.
 - **Edge cases:** The post is **gated/scheduled** — there is **no public URL yet**, so the repo's "Full show notes" link is necessarily `_TBD_` until it publishes Wednesday. *(Open question: a Substack API could fetch the gated draft and remove this manual copy.)*
 
-### Step 3: Assemble "files shared on-air" *(human)*
-- **What happens:** Taylor gathers any files / skills / workflows / links that were shown on-screen during the episode, to drop into the folder.
-- **Gate → Step 4:** The shared-files list is known (often empty).
+### Step 3: Assemble show-notes links + "files shared on-air" *(human → increasingly agent)*
+- **What happens:** Taylor gathers the links and files that belong in the episode's show notes. This is not one bucket — it's a **link checklist** with four categories, one of which is now a deterministic standing rule:
+  1. **Guest LinkedIn — ALWAYS.** Every episode's notes include the guest's LinkedIn, whether or not it came up on-air. This is a standing rule, so it's the one category an agent can satisfy from just the guest name (no capture needed). *(Ep 7 guest: Ben Pope.)*
+  2. **Guest company / how-to-get-in-touch link.** The guest's business or contact URL. *(Ep 7: `levitatesolutions.ai` — get in touch with Ben.)*
+  3. **Demos shown on-air.** Product/demo URLs surfaced during the episode. *(Ep 7: `https://www.levitate.ai/getmyscore` — the demo.)*
+  4. **External resources referenced on-air.** Blogs, tools, or docs someone pointed to. *(Ep 7: Simon's agentic-engineering blog.)*
+- **Gate → Step 4:** The four categories have been walked; category 1 is always filled, 2–4 are filled or explicitly empty.
 - **Dependencies:** **Parallel** with Step 2 (independent of the draft content).
-- **Edge cases / KNOWN GAP:** There is **no canonical source** for this today. It defaults to the **production notes (sheet column G)**, otherwise memory; sometimes a **separate assets drop** happens later (something was forgotten, or a viewer requested a file). Frequently nothing is posted → the folder just uses the **"request a file" footer** (as in Eps 3–5). *This gap is the seed of a future "during-show capture" process.*
+- **Edge cases / REMAINING GAP:** Category 1 (LinkedIn) is solved — deterministic from the guest name. Categories 2–4 still have **no canonical capture source**: they default to **production notes (sheet column G)**, otherwise memory, with a **separate assets drop** sometimes happening later. When 2–4 are all empty the folder falls back to the **"request a file" footer** (as in Eps 3–5). *The narrowed gap — capturing 2–4 live — is the seed of a future "during-show capture" process.*
 
 ### Step 4: Build the repo notes *(skill / agent)*
 - **What happens:** Create/rename the `00N-slug/` folder and write the episode README:
-  - title; **Released = scheduled drop date**; intro from the description; "what we cover" from the draft; files-shared section (or the request-a-file footer).
+  - title; **Released = scheduled drop date**; intro from the description; "what we cover" from the draft; a **Links** section built from the Step 3 checklist (guest LinkedIn always; guest company, demos, and referenced resources when present); files-shared section (or the request-a-file footer).
   - Runtime, the listen links (Apple/Spotify/YouTube), and the public show-notes URL are left as `_TBD_` (Spotify uses the show-level link by convention).
 - **Gate → Step 5:** Folder + README exist; known values filled, unknowns marked `_TBD_`.
 - **Dependencies:** Linear from Step 2 (and Step 3).
@@ -124,12 +128,13 @@ When the episode actually publishes (Wednesday), run `tools/redacted_feed.py` to
 | 1.1 | D/E left blank intentionally | E (drop date) feeds Process 2 timing | Treat as a cross-process dependency, not a gap |
 | 2.1 | Self-initiate from cadence | Process can run without the ping | Allow a manual/cadence trigger |
 | 2.2 | Gated/scheduled post, no public URL | Show-notes link can't be filled yet | Leave `_TBD_`; fill at go-live |
-| 2.3 | No canonical "shared on-air" source | Files section may be incomplete | Use production notes → memory → assets drop; else request-a-file footer |
+| 2.3 | Guest LinkedIn is a standing rule | Always required, even if not shown on-air | Agent fills from guest name — no capture needed |
+| 2.3 | No canonical source for links 2–4 (company / demo / referenced resource) | Links section may be incomplete | Use production notes → memory → assets drop; else request-a-file footer |
 | 2.4 | Episode not live | All platform links/runtime/thumbnail unknown | Mark every one `_TBD_` |
 
 ## Open Questions
 *(Inputs for the Process + Context framework's context investigation.)*
-1. **No canonical source for "files shared on-air."** Candidate: a future *during-show capture* process so shareable items are logged live instead of reconstructed from production notes / memory / ad-hoc assets drops.
+1. **Capture source for show-notes links 2–4 (company / demo / referenced resource).** Narrowed from the old "no source for shared files" gap: category 1 (guest LinkedIn) is now a deterministic standing rule the agent can fill. Categories 2–4 still need a source. Candidate: a future *during-show capture* process so shareable links are logged live instead of reconstructed from production notes / memory / ad-hoc assets drops.
 2. **Substack API** to fetch the gated draft would eliminate the manual copy in Step 2.2 (and could auto-fire the Process 2 trigger).
 3. **Per-episode Spotify links** aren't exposed by any public endpoint — would need the Spotify Web API (OAuth). Show-level link used by convention for now.
 4. **Sheet access.** The agent can't read column G (production notes); the handoff requires Taylor to paste them, or to grant the agent access to the tracking sheet.

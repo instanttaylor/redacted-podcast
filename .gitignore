@@ -13,3 +13,6 @@ Icon?
 # Misc
 Thumbs.db
 *.tmp
+
+# Local skill secrets — never commit (public repo)
+*.local.md

@@ -27,7 +27,7 @@ This is **Process 2** in [`process/post-recording-process-map.md`](../../../proc
 
 5. **Write the folder README.** Create `00N/` (or rename to `00N-slug/` only once there's a title). Use the template below. Fill knowns; mark unknowns `_TBD_`.
 
-6. **Add the root README table row** (newest first, top of the `<table>`). Keep the stub-folder note (`00N`–`015`) correct — a staged-but-untitled folder keeps its number.
+6. **Do NOT add a row to the root README "Episodes" list.** That list is **launched episodes only** — an unlaunched episode never appears there. The Episodes-list row gets added later, at launch, by `finalize-launched-episode`. Prep only creates the `00N/` folder + its README. If the stub-folder note below the table names this folder, keep it accurate.
 
 7. **Confirm before commit.** Show `git diff` and `grep -rn _TBD_ 00N*`. On approval, commit straight to `main` (this repo works directly on main). Otherwise leave it staged.
 
@@ -57,22 +57,6 @@ This is **Process 2** in [`process/post-recording-process-map.md`](../../../proc
 > **Didn't see what was shown on-air?** We don't always post everything — some of it stays redacted. **[Request a file →](mailto:contact@tweenerfund.com?subject=%5BREDACTED%5D%20Ep%20N%20file%20request)**
 ```
 (Spotify uses the show-level link by convention. Drop any Links bullet that has no entry and isn't required — but the LinkedIn bullet is always present, `_TBD_` if unconfirmed.)
-
-## Root README table-row template
-
-```html
-<tr>
-<td width="300"><a href="00N/"><i>thumbnail TBD</i></a></td>
-<td valign="top">
-
-### EP 0N · <title or _TBD_> (with <Guest>)
-`<drop date or _TBD_>` · _TBD_
-
-▶ [Watch](_TBD_) · 🎧 [Apple](_TBD_) · [Spotify](https://open.spotify.com/show/1aMrtX8LnIU2w5yoT4uolb) · 📝 [Show notes](<substack URL or _TBD_>) · 📁 [Files](00N/)
-
-</td>
-</tr>
-```
 
 ## Boundaries
 - Don't touch tracking-sheet columns D/E (owned downstream). This skill only *reads* the sheet.

@@ -56,7 +56,7 @@ The Substack **"ready for review"** Slack ping — Taylor is an editor on the po
 **Backstop triggers:** the every-other-week cadence, or a manual one-off run. (Taylor: "let's go with the ping for now; I can always run it one-off if needed.")
 
 ## End State
-The episode's show notes are **committed to `main`** — the `00N-slug/` folder, its README, and the root-README episode-table row — with every not-yet-available value left as a **`_TBD_` marker**. Those markers ARE the pending list (greppable with `grep -r _TBD_`).
+The episode's show notes are **committed to `main`** — the `00N-slug/` folder and its README — with every not-yet-available value left as a **`_TBD_` marker**. Those markers ARE the pending list (greppable with `grep -r _TBD_`). The root-README **"Episodes" list is launched-only**, so the episode's row is **not** added here — that happens at go-live, once it's actually live.
 
 ## Process Steps
 
@@ -90,9 +90,9 @@ The episode's show notes are **committed to `main`** — the `00N-slug/` folder,
 - **Dependencies:** Linear from Step 2 (and Step 3).
 - **Edge cases:** Because the episode isn't live yet, **all** platform links + runtime + public Substack URL + YouTube thumbnail are necessarily `_TBD_`.
 
-### Step 5: Update the root README episode table *(skill / agent)*
-- **What happens:** Add the EP row (date, title, links as `_TBD_`, thumbnail `_TBD_` until the YouTube video is live) and keep the stub-folder note (`00N`–`015`) correct.
-- **Gate → Step 6:** Table row is present.
+### Step 5: Keep the stub-folder note correct *(skill / agent)*
+- **What happens:** Do **not** add a row to the root README "Episodes" list — that list is **launched-only** and the episode isn't live yet. The Episodes-list row is added later, at go-live. Just keep the stub-folder note (`00N`–`015`) beneath the table accurate.
+- **Gate → Step 6:** No Episodes-list row added; stub note accurate.
 - **Dependencies:** Linear from Step 4.
 
 ### Step 6: Commit to `main` + leave the pending list *(skill / agent)* → END STATE
@@ -103,7 +103,7 @@ The episode's show notes are **committed to `main`** — the `00N-slug/` folder,
 ---
 
 # Downstream process (scoped OUT, noted): Go-live finalize
-When the episode actually publishes (Wednesday), run `tools/redacted_feed.py` to pull the now-available **Apple / Spotify / YouTube / runtime**, plus the **public Substack URL** and the **YouTube thumbnail**, replace the `_TBD_` markers, and commit. Separate trigger (episode goes live), separate process — not mapped here.
+When the episode actually publishes (Wednesday), run `tools/redacted_feed.py` to pull the now-available **Apple / Spotify / YouTube / runtime**, plus the **public Substack URL** and the **YouTube thumbnail**, replace the `_TBD_` markers, **and add the episode's row to the root README "Episodes" list** (launched-only — this is the moment it earns a spot), then commit. Separate trigger (episode goes live), separate process — not mapped here.
 
 ---
 
@@ -117,7 +117,7 @@ When the episode actually publishes (Wednesday), run `tools/redacted_feed.py` to
 | 2.2 | Notes staging | Retrieve gated Substack draft | Draft content in hand | Taylor | Linear from 2.1 | 1 |
 | 2.3 | Notes staging | Assemble files shared on-air | Shared-files list known | Taylor | Parallel with 2.2 | 1 (GAP) |
 | 2.4 | Notes staging | Build repo notes | Folder+README, knowns filled / `_TBD_` | Agent | Linear from 2.2 (+2.3) | 1 |
-| 2.5 | Notes staging | Update root README table | Table row present | Agent | Linear from 2.4 | 0 |
+| 2.5 | Notes staging | Keep stub note correct (NO Episodes-list row — launched-only) | No row added; stub note accurate | Agent | Linear from 2.4 | 0 |
 | 2.6 | Notes staging | Commit to main + pending list | Committed; `grep _TBD_` = pending (END) | Agent | Linear from 2.5 | 0 |
 
 ## Edge Case Index

@@ -1,6 +1,6 @@
 # [Redacted] Podcast — Process Pages (house format)
 
-_Rendered into the `clickup-process-reconciliation` house format (`Step | Process step | Actor | Notes | LLM Access`). Source: [`../process/post-recording-process-map.md`](../process/post-recording-process-map.md) + verified access in [`./ai-ification-context-map.md`](./ai-ification-context-map.md). Local markdown artifact — **not** pushed to ClickUp. `LLM Access` ✅ means a confirmed agent-accessible credential exists today; the Actor column reflects current reality._
+_Rendered into the `clickup-process-reconciliation` house format (`Step | Process step | Actor | Notes | LLM Access`). Source: [`../../process/post-recording-process-map.md`](../../process/post-recording-process-map.md) + verified access in [`./ai-ification-context-map.md`](./ai-ification-context-map.md). Local markdown artifact — **not** pushed to ClickUp. `LLM Access` ✅ means a confirmed agent-accessible credential exists today; the Actor column reflects current reality._
 
 ---
 

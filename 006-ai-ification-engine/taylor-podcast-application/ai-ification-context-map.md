@@ -2,7 +2,7 @@
 
 > This is a **work artifact generated on the episode** (recorded 2026-06-30). The episode is about AI-ifying the [Redacted] post-recording workflow, so the process documents we produced *are* the show material. This file is the **context-mapping / agent-readiness** output (ai-ification **stage 3**) for the automation target.
 >
-> Source process map: [`../process/post-recording-process-map.md`](../process/post-recording-process-map.md)
+> Source process map: [`../../process/post-recording-process-map.md`](../../process/post-recording-process-map.md)
 > Framework: Shaner Consulting Process+Context, Step 3 (Process/Context Cycle). **Fork: Path A — recurring.**
 
 ## What we're assessing

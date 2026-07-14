@@ -67,3 +67,5 @@ After **Recorded**, the episode's show notes are `prep-recorded-episode`'s job �
 - **Confirm before writing to the sheet.** Show the row change first.
 - **Public-repo hygiene.** Guest emails + booking details live in the **private sheet** and the **inbox** only — never write a guest's email address, an unlaunched guest's name, or the sheet ID/link into anything under version control. The process map in `process/` stays generic.
 - **Thread replies correctly.** Pass `replyToMessageId` so drafts land in the existing guest thread, not a new one.
+- **Draft house style — run the `stop-slop` skill on every draft before saving it.** No em dashes. No adverbs (`just`, `really`, `actually`, `genuinely`). No throat-clearing openers ("Here's what we've got…"). Short sentences, active voice, Taylor's warm low-polish tone.
+- **Links as anchor text, never raw URLs.** In `create_draft`, always pass `htmlBody` with the link as a hyperlinked phrase (e.g. `<a href="…">what being on the show looks like</a>`) — never drop a bare URL in the body, or Gmail renders it as an ugly `google.com/url?q=…` wrapper. Keep a plain-text `body` too as the fallback.

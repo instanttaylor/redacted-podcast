@@ -20,6 +20,8 @@ Read `.claude/skills/prep-recorded-episode/tracker.local.md` (gitignored) for th
 
 Voice for every draft comes from [`want-to-be-on.md`](../../../want-to-be-on.md) (the pitch) and [`guest-prep.md`](../../../guest-prep.md) (the day-of expectations). Match Taylor's tone: short, warm, low-polish, "you don't need to over-prepare."
 
+**Standard link — always include it in the FIRST Taylor→guest email.** The public "what the show is like" page is `want-to-be-on.md` in the repo, at `https://github.com/instanttaylor/redacted-podcast/blob/main/want-to-be-on.md`. Every guest's first touch from Taylor (whether that's a first-contact or a propose-dates note) links it so they know what they're signing up for. It's a public repo URL — safe to send.
+
 ## Modes
 
 Pick the mode from what's asked:
@@ -48,8 +50,8 @@ Each stage's draft, grounded in how Taylor actually writes. Keep them short. Bra
 
 | Stage (current) | Draft to write | Then set Stage → |
 |---|---|---|
-| **Contacted** (host-sourced, no reply yet) | **First contact:** point to `want-to-be-on.md`; soften — *"You don't need to 'pitch' us. Just shoot back a few answers to those 3 questions and we'll chat more."* | Contacted |
-| **Replied** (guest sent role/team + demo menu) | **Propose dates + narrow topic:** offer the **`Open` slots from the Slots tab** — *"Right now I'm booking for [open slot dates]. We record around 10am ET and keep it under an hour. Any of those work?"* + help pick **one** demo. Never invent a date; if there are no Open slots, ask Taylor to add some. | Date proposed |
+| **Contacted** (host-sourced, no reply yet) | **First contact:** link the `want-to-be-on.md` page (public URL above); soften — *"You don't need to 'pitch' us. Just shoot back a few answers to those 3 questions and we'll chat more."* | Contacted |
+| **Replied** (guest sent role/team + demo menu) | **Propose dates + narrow topic:** offer the **`Open` slots from the Slots tab** — *"Right now I'm booking for [open slot dates]. We record around 10am ET and keep it under an hour. Any of those work?"* + help pick **one** demo. Never invent a date; if there are no Open slots, ask Taylor to add some. **If this is the first Taylor→guest email (e.g. a host-sourced yes), include the `want-to-be-on.md` link too.** | Date proposed |
 | **Date proposed** (guest picked a date) | **Confirm:** *"Amazing, let's get you on the schedule for [date]. Invite incoming and I'll get you more info soon."* (Taylor sends the actual Google Calendar invite — the skill doesn't.) Then **flip that Slot `Open → Booked`** with the guest attached + Ep #, and stamp the guest's Recording date — confirm both writes with Taylor first. | Booked |
 | **Booked** (invite accepted) | **Prep:** the `guest-prep.md` rundown — pick one thing / it doesn't have to work; the 6 talking-point notes; the day-of runbook; how redacting works; the StreamYard guest-instructions link (`https://support.streamyard.com/hc/en-us/articles/360043291612-Guest-instructions`). Offer a live pre-call only if they want one. | Prepped |
 | **Prepped**, ~24h before record | **Reminder:** *"All good to record tomorrow at 10am (Eastern)?"* | Reminded |

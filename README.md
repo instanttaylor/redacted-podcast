@@ -25,6 +25,17 @@ This repo is the **companion**. Full show notes live with each episode (linked b
 
 <table>
 <tr>
+<td width="300"><a href="https://www.youtube.com/watch?v=oK4U0fkvqB8"><img src="https://img.youtube.com/vi/oK4U0fkvqB8/hqdefault.jpg" width="300" alt="Episode 6"></a></td>
+<td valign="top">
+
+### EP 06 · The 8-Stage "AI-ification Engine" Behind Every Automation Shipped
+`2026-07-15` · 50:12
+
+▶ [Watch](https://www.youtube.com/watch?v=oK4U0fkvqB8) · 🎧 [Apple](https://podcasts.apple.com/us/podcast/redacted-episode-6-the-8-stage-ai-ification-engine/id1774076494?i=1000776867749) · [Spotify](https://open.spotify.com/show/1aMrtX8LnIU2w5yoT4uolb) · 📝 [Show notes](https://www.tweenertimes.com/p/redacted-episode-6-the-8-stage-ai) · 📁 [Files](006-ai-ification-engine/)
+
+</td>
+</tr>
+<tr>
 <td width="300"><a href="https://www.youtube.com/watch?v=Pifilcj62Ks"><img src="https://img.youtube.com/vi/Pifilcj62Ks/hqdefault.jpg" width="300" alt="Episode 5"></a></td>
 <td valign="top">
 
@@ -81,7 +92,7 @@ This repo is the **companion**. Full show notes live with each episode (linked b
 </tr>
 </table>
 
-> Folders `008/`–`015/` are pre-created stubs. `006-ai-ification-engine/` and `007/` have companion files but aren't in the Episodes list until they launch. Each stub gets a title-slug name once the episode airs.
+> Folders `008/`–`015/` are pre-created stubs. `007/` has companion files but isn't in the Episodes list until it launches. Each stub gets a title-slug name once the episode airs.
 
 ## Want to be on the show?
 

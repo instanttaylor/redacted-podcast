@@ -16,3 +16,4 @@ Thumbs.db
 
 # Local skill secrets — never commit (public repo)
 *.local.md
+*.local.json

@@ -92,7 +92,7 @@ This repo is the **companion**. Full show notes live with each episode (linked b
 </tr>
 </table>
 
-> Folders `008/`–`015/` are pre-created stubs. `007/` has companion files but isn't in the Episodes list until it launches. Each stub gets a title-slug name once the episode airs.
+> Folders `009/`–`015/` are pre-created stubs. `007/` (with companion files) and `008/` are staged for launch but aren't in the Episodes list until they go live. Each stub gets a title-slug name once the episode airs.
 
 ## Want to be on the show?
 

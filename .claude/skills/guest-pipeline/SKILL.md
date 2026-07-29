@@ -9,7 +9,7 @@ Operates the process mapped in [`process/guest-pipeline-process-map.md`](../../.
 
 1. **The looptwo producer inbox** (the dedicated Google account — address in `tracker.local.md`) — the live guest threads (subject usually `Redacted Podcast Guest` or a recording thread). Read via the **Gmail MCP** (`search_threads`, `get_thread`).
 2. **The "Guests" tab** of the Podcast Tracker sheet — the mini-DB of one row per guest + stage. Config (spreadsheet ID, tab gids, column maps) lives in the gitignored `.claude/skills/prep-recorded-episode/tracker.local.md`.
-3. **The "Slots" tab** — one row per upcoming recording date (`Date · Status · Type · Guest · Ep # · Notes`), Status `Open → Held → Booked → Recorded`. Cadence is every-other-Wednesday, ad-hoc allowed; **no calendar integration** — Taylor hand-maintains the Open runway. The dates you offer a guest are simply the `Open` slots; never invent one.
+3. **The "Slots" tab** — one row per upcoming recording date (`Date · Status · Type · Guest · Ep # · Notes`), Status `Open → Held → Booked → Recorded`, plus `Unavailable` for a cadence date Taylor has blocked (meeting, travel, holiday). Cadence is every-other-Wednesday, ad-hoc allowed; **no calendar integration** — Taylor hand-maintains the Open runway. The dates you offer a guest are simply the `Open` slots; never invent one, and never offer or book an `Unavailable` date even when the runway is thin.
 
 **This skill DRAFTS, it does not send.** Every email is a Gmail draft for Taylor to review and send himself. It also **never invents dates** — there's no calendar integration; recording cadence is currently ~every 2 weeks, and the open slots come from *asking Taylor*.
 
@@ -55,8 +55,27 @@ Each stage's draft, grounded in how Taylor actually writes. Keep them short. Bra
 | **Date proposed** (guest picked a date) | **Confirm:** *"Amazing, let's get you on the schedule for [date]. Invite incoming and I'll get you more info soon."* (Taylor sends the actual Google Calendar invite — the skill doesn't.) Then **flip that Slot `Open → Booked`** with the guest attached + Ep #, and stamp the guest's Recording date — confirm both writes with Taylor first. | Booked |
 | **Booked** (invite accepted) | **Prep:** the `guest-prep.md` rundown — pick one thing / it doesn't have to work; the 6 talking-point notes; the day-of runbook; how redacting works; the StreamYard guest-instructions link (`https://support.streamyard.com/hc/en-us/articles/360043291612-Guest-instructions`). **No pre-calls — all guest comms via email.** | Prepped |
 | **Prepped**, ~24h before record | **Reminder:** *"All good to record tomorrow at 10am (Eastern)?"* | Reminded |
-| **Reminded**, morning of | **Day-of link:** *"Here's the link for our 10am recording today — hop in (Chrome ideal): [StreamYard studio link from Taylor]. Guest instructions: <url>."* | Recorded (after the record) |
+| **Reminded**, morning of | **Day-of link:** send the canonical copy below verbatim, with the StreamYard studio link from Taylor. | Recorded (after the record) |
 | **Recorded** | **Post-record thank-you:** thanks; *"it'll hit the feeds in a few weeks"*; share the `00N/` show-notes folder for review (*"LMK if you see anything you want changed"*); optional meetup. | Follow-up done |
+
+### Day-of email — canonical copy
+
+Taylor's wording (2026-07-29). Send it as-is; swap the greeting and drop in the studio link he supplies. Two hyperlinks, both anchor text: "studio link" and "guest instructions". `htmlBody` only, no plain-text `body`.
+
+```
+Hey [First],
+
+We're on for 10am ET this morning. Here's the studio link.
+
+Chrome works best. If you haven't used StreamYard before, their guest instructions cover the setup.
+
+We'll chat before we hit record. Bring the one thing you want to show and see you in a bit.
+
+See you at 10,
+Taylor
+```
+
+Do not add "hop in a few minutes early", the "it doesn't have to work" line, or anything else from `guest-prep.md`. The prep email already covered it.
 
 After **Recorded**, the episode's show notes are `prep-recorded-episode`'s job — that skill also owns collecting any assets the guest offered (e.g. a repo/skill). Hand off; don't duplicate here.
 
@@ -68,4 +87,5 @@ After **Recorded**, the episode's show notes are `prep-recorded-episode`'s job �
 - **Public-repo hygiene.** Guest emails + booking details live in the **private sheet** and the **inbox** only — never write a guest's email address, an unlaunched guest's name, or the sheet ID/link into anything under version control. The process map in `process/` stays generic.
 - **Thread replies correctly.** Pass `replyToMessageId` so drafts land in the existing guest thread, not a new one.
 - **Draft house style — run the `stop-slop` skill on every draft before saving it.** No em dashes. No adverbs (`just`, `really`, `actually`, `genuinely`). No throat-clearing openers ("Here's what we've got…"). Short sentences, active voice, Taylor's warm low-polish tone.
-- **Links as anchor text, never raw URLs.** In `create_draft`, always pass `htmlBody` with the link as a hyperlinked phrase (e.g. `<a href="…">what being on the show looks like</a>`) — never drop a bare URL in the body, or Gmail renders it as an ugly `google.com/url?q=…` wrapper. Keep a plain-text `body` too as the fallback.
+- **Links as anchor text, never raw URLs — and no plain-text fallback when the email has a link.** In `create_draft`, pass `htmlBody` with the link as a hyperlinked phrase (e.g. `<a href="…">what being on the show looks like</a>`) and pass **no `body` at all**. A bare URL anywhere in `body` is what makes Gmail rewrite it into the ugly `google.com/url?q=…&source=gmail` wrapper; clean `href`s in `htmlBody` survive untouched. Only send a plain-text `body` for emails with zero links. Every `href` ships exactly as Taylor supplied it: no UTMs, no tracking or campaign params, no shorteners, nothing appended.
+- **Never edit a draft with `update_draft` once it exists.** It has no `replyToMessageId` parameter, so editing silently moves the draft out of the guest's thread into a new one. To change a draft: confirm Taylor is not mid-edit in Gmail, then `create_draft` fresh with `replyToMessageId` and have him delete the stale one. Check `threadId` in `list_drafts` after every draft write. If the draft's timestamp moved and you did not move it, Taylor is editing it — leave it alone.

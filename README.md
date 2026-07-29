@@ -25,6 +25,17 @@ This repo is the **companion**. Full show notes live with each episode (linked b
 
 <table>
 <tr>
+<td width="300"><a href="https://www.youtube.com/watch?v=8Z68Ptd0Ha0"><img src="https://img.youtube.com/vi/8Z68Ptd0Ha0/hqdefault.jpg" width="300" alt="Episode 7"></a></td>
+<td valign="top">
+
+### EP 07 · How a Marketer with One Broken Assembly Class Built a Lead-Gen Tool Solo
+`2026-07-29` · 43:05
+
+▶ [Watch](https://www.youtube.com/watch?v=8Z68Ptd0Ha0) · 🎧 [Apple](https://podcasts.apple.com/us/podcast/redacted-episode-7-how-a-marketer-with-one/id1774076494?i=1000778828740) · [Spotify](https://open.spotify.com/show/1aMrtX8LnIU2w5yoT4uolb) · 📝 [Show notes](https://www.tweenertimes.com/p/redacted-episode-7-how-a-marketer) · 📁 [Files](007/)
+
+</td>
+</tr>
+<tr>
 <td width="300"><a href="https://www.youtube.com/watch?v=oK4U0fkvqB8"><img src="https://img.youtube.com/vi/oK4U0fkvqB8/hqdefault.jpg" width="300" alt="Episode 6"></a></td>
 <td valign="top">
 
@@ -92,7 +103,7 @@ This repo is the **companion**. Full show notes live with each episode (linked b
 </tr>
 </table>
 
-> Folders `009/`–`015/` are pre-created stubs. `007/` (with companion files) and `008/` are staged for launch but aren't in the Episodes list until they go live. Each stub gets a title-slug name once the episode airs.
+> Folders `010/`–`015/` are pre-created stubs. `008/` and `009/` are staged for launch but aren't in the Episodes list until they go live. Each stub gets a title-slug name once the episode airs.
 
 ## Want to be on the show?
 

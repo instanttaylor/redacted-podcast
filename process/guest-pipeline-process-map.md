@@ -49,7 +49,7 @@ A recording date is a **first-class row**, not free text buried in a guest's row
 | Ep # | `00N` once assigned (slot ≈ episode, 1:1) |
 | Notes | Holds, conflicts (e.g. "David traveling") |
 
-**Cadence:** every-other-Wednesday, ~10am ET, **ad-hoc allowed**. Slots are hand-maintained rows — **no calendar integration**; Taylor keeps the Open runway current and reality (travel, holidays) overrides the cadence. This is what makes Step 4 a lookup instead of guesswork: the dates offered to a guest are simply the **Open** slots, and booking flips that slot to `Booked` + stamps the guest. One slot holds one guest, so double-booking is structurally impossible, and Open-slots-vs-guests-in-pipeline is the runway signal (short on guests, or short on slots?).
+**Cadence:** weekly Wednesdays, ~10am ET, **ad-hoc allowed**. Every Wednesday opens as a guest slot; the hosts claim one for a host-only recording by flipping its `Type` to `Host-only`, which takes it off the guest runway. Slots are hand-maintained rows — **no calendar integration**; Taylor keeps the Open runway current and reality (travel, holidays) overrides the cadence. This is what makes Step 4 a lookup instead of guesswork: the dates offered to a guest are the **next 5 Open** slots, soonest first, and booking flips that slot to `Booked` + stamps the guest. Keep at least 5 Open rows standing ahead of today; when fewer remain, extend the weekly runway. One slot holds one guest, so double-booking is structurally impossible, and Open-slots-vs-guests-in-pipeline is the runway signal (short on guests, or short on slots?).
 
 ## Process Steps
 
@@ -78,7 +78,7 @@ A recording date is a **first-class row**, not free text buried in a guest's row
   - No reply → follow-up nudge; Stage stays Contacted.
 
 ### Step 4: Propose dates + narrow the topic
-- **What happens:** Taylor offers the **Open slots** from the Slots tab (every-other-Wednesday, ~10am ET, keep the whole thing <1 hr) and helps the guest pick **one** thing to demo. No guessing dates — the offer is whatever's currently `Open`.
+- **What happens:** Taylor offers the **next 5 Open slots** from the Slots tab (weekly Wednesdays, ~10am ET, keep the whole thing <1 hr) and helps the guest pick **one** thing to demo. No guessing dates — the offer is whatever's currently `Open`, soonest first.
 - **Gate → Step 5:** Guest picks a date (Stage = Date proposed → Booked on confirm).
 - **Dependencies:** linear from Step 3
 - **Edge cases:**
@@ -94,19 +94,20 @@ A recording date is a **first-class row**, not free text buried in a guest's row
   - Booking interleaves with host-only (Taylor+David) recordings on the calendar.
 
 ### Step 6: Prep the guest
-- **What happens:** Send the `guest-prep.md` rundown **as an email** (the default): pick one thing / it doesn't have to work, the 6 talking-point notes (org context; how it's built high-level, never code; why; problems; how the AI piece evolved; how learnings shape future work), the day-of runbook, how redacting works, and the StreamYard guest-instructions link. Offer a live pre-call only if the guest wants one.
+- **What happens:** Send the `guest-prep.md` rundown **as an email**: pick one thing / it doesn't have to work, the 6 talking-point notes (org context; how it's built high-level, never code; why; problems; how the AI piece evolved; how learnings shape future work), the day-of runbook, how redacting works, and the StreamYard guest-instructions link. **No pre-calls** — all guest comms run over email, so the written prep is the whole prep.
 - **Gate → Step 7:** Guest has the prep info (Stage = Prepped).
 - **Dependencies:** linear from Step 5 (can be sent any time after booking)
 - **Edge cases:**
-  - Host traveling → prep goes out fully in writing (what Taylor did with Ben) instead of a live call.
-  - Guest asks for a pre-call → schedule the short Zoom.
+  - Guest asks for a pre-call → answer the questions over email; the first live conversation is the pre-roll before recording.
+  - Guest has questions the prep email didn't cover → reply on the thread, no call.
 
 ### Step 7: 24-hr reminder
-- **What happens:** Day-before nudge — "All good to record tomorrow at 10am ET?"
+- **What happens:** Day-before nudge naming the date and carrying the studio link — "All good to record Wednesday the 12th at 10am ET? Here's the studio link. It's also in the calendar invite." Name the weekday + date rather than "tomorrow": a guest's prep email may predate a reschedule and still show the old date. The link is the `Location` on the calendar event.
 - **Gate → Step 8:** Guest re-confirms (Stage = Reminded).
 - **Dependencies:** linear from Step 6; time-gated to ~24h pre-record
 - **Edge cases:**
   - Guest needs to reschedule → back to Step 4/5.
+  - Event was rescheduled after the guest accepted → the acceptance email on file shows the old date; confirm the link against the live invite.
 
 ### Step 8: Day-of — send the StreamYard studio link
 - **What happens:** Morning of, Taylor sends the **unique** StreamYard studio link (Chrome ideal) + the guest-instructions article.
@@ -155,17 +156,17 @@ A recording date is a **first-class row**, not free text buried in a guest's row
 | 3 | No reply | Stalls pipeline | Follow-up nudge; Stage stays Contacted |
 | 4 | No offered date works | Can't book | Offer the next wave of dates |
 | 5 | Invite not accepted | False "booked" | Nudge; don't mark Booked until accepted |
-| 6 | Host traveling | No live pre-call | Send prep fully in writing |
-| 6 | Guest wants a call | Needs live prep | Schedule the short Zoom |
+| 6 | Guest wants a call | Wants live prep | Answer over email; pre-roll is the first live conversation |
+| 6 | Prep email leaves questions | Guest under-prepped | Reply on the thread, no call |
 | 7 | Guest reschedules | Date moves | Loop back to Step 4/5 |
 | 8 | Stale link reused | Guest can't join | Always send the fresh per-recording link |
 | 9 | Co-host absent | One host runs it | Proceed solo |
 | 9 | Sensitive content shown | Redaction needed | Flag timecode for editor |
 
 ## Resolved decisions (from mapping session)
-- **Date slots:** modeled as first-class rows in the **Slots** tab (every-other-Wednesday, ad-hoc allowed, no calendar integration). Step 4 offers whatever's `Open`; booking flips a slot to `Booked`. See "Recording slots" above.
+- **Date slots:** modeled as first-class rows in the **Slots** tab (weekly Wednesdays, ad-hoc allowed, no calendar integration). Step 4 offers whatever's `Open`; booking flips a slot to `Booked`. See "Recording slots" above. *(Updated 2026-08-10: the runway moved from every-other-Wednesday to weekly. Every Wednesday is a guest slot by default; the hosts pull one back for a host-only recording when they want it, rather than the guest runway being capped at two a month.)*
 - **Go/no-go:** informal grid-fit call by Taylor + David; no rubric.
-- **Prep format:** written email is the default; live pre-call only on request.
+- **Prep format:** written email, always. *(Updated 2026-08-10: no pre-calls at all. All guest comms run over email; the pre-roll before recording is the first live conversation.)*
 - **Intake scope:** both inbound (via `contact@`) and host-sourced branches are in scope.
 - **Guest assets:** owned by the post-recording skill (`prep-recorded-episode`), not this process.
 

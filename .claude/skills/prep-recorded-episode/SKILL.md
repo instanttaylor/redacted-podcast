@@ -11,6 +11,7 @@ This is **Process 2** in [`process/post-recording-process-map.md`](../../../proc
 
 ## Inputs
 - **Required:** episode number `N`, guest name. Ask if not given.
+- **Ask for: the recording transcript.** StreamYard produces a `.vtt` right after upload, so it's available same-day — ask Taylor for the file path. It fills the intro and "What we cover" long before the Substack draft exists (see step 3b). Skip only if Taylor says there isn't one.
 - **Auto-fetched** (don't ask for these first — go get them): drop date + production notes from the tracker sheet; title / subtitle / public URL from the Substack page.
 
 ## Steps
@@ -19,7 +20,9 @@ This is **Process 2** in [`process/post-recording-process-map.md`](../../../proc
 
 2. **Read the sheet row** via `workspace-mcp` `read_sheet_values` as that Google account. Get **column E (drop date)** and **column G (production notes)** for episode `N`. Column E is often blank pre-schedule — that's fine, it stays `_TBD_`.
 
-3. **Pull the Substack draft.** WebFetch the scheduled post's public page for **title, subtitle, and canonical public URL**. Pre-publish, the body is **gated** — the title/subtitle/URL still render, but the "what we cover" body does not. If you need the body now, **ask Taylor to paste it**; otherwise leave "what we cover" as `_TBD_`.
+3. **Pull the Substack draft.** WebFetch the scheduled post's public page for **title, subtitle, and canonical public URL**. Pre-publish, the body is **gated** — the title/subtitle/URL still render, but the "what we cover" body does not. If you need the body now, **ask Taylor to paste it**; otherwise fill "what we cover" from the transcript (step 3b) or leave it `_TBD_`.
+
+3b. **Draft from the transcript (when there's no Substack draft yet).** Strip the `.vtt` to plain text (drop `WEBVTT`, timestamp lines, blank lines) and read it. Write a one-sentence intro plus "What we cover" bullets in house style — short, punchy, ~10 bullets, favor the episode's own phrases in quotes — and identify the demo(s) shown for the Links checklist. Don't over-extract; the bullets decorate the notes, the Substack article stays the deep version and its subtitle may replace the intro at publish-week staging. **Caution:** StreamYard's VTT has no speaker tags, so attribute by context and leave names out of any bullet where the speaker is ambiguous. **The transcript file never gets committed** — it stays wherever Taylor keeps it (public repo, guest speech).
 
 4. **Build the Links checklist — propose, confirm, NEVER guess.** Four categories (see the process map). For each, present a candidate for yes/no/edit before writing; **anything unconfirmed goes in as `_TBD_`, never a guessed URL.**
    - **Guest LinkedIn — always.** WebSearch for it, propose the match, confirm. (Watch for name/company mismatches — verify the person, not just the name.)

@@ -1,9 +1,9 @@
-# Episode 8 — _TBD_
+# Episode 8 — We Hired an AI Sales Rep and Became Its Manager
 
-**Featuring:** Taylor + David (host-only) · **Recorded:** July 21, 2026 · **Released:** _TBD_ · **Runtime:** _TBD_
+**Featuring:** Taylor + David (host-only) · **Recorded:** July 21, 2026 · **Released:** August 12, 2026 · **Runtime:** 43:04
 
 📝 **Full show notes:** [Read on tweenertimes.com](_TBD_)
-🎧 **Listen:** [Apple](_TBD_) · [Spotify](https://open.spotify.com/show/1aMrtX8LnIU2w5yoT4uolb) · [YouTube](_TBD_)
+🎧 **Listen:** [Apple](https://podcasts.apple.com/us/podcast/redacted-episode-8-we-hired-an-ai-sales-rep-and/id1774076494?i=1000782891421) · [Spotify](https://open.spotify.com/show/1aMrtX8LnIU2w5yoT4uolb) · [YouTube](https://www.youtube.com/watch?v=4HFkfenI5dA)
 
 _Intro — TBD once the Substack draft is ready (pulled during publish-week staging)._
 

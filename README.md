@@ -25,6 +25,17 @@ This repo is the **companion**. Full show notes live with each episode (linked b
 
 <table>
 <tr>
+<td width="300"><a href="https://www.youtube.com/watch?v=4HFkfenI5dA"><img src="https://img.youtube.com/vi/4HFkfenI5dA/hqdefault.jpg" width="300" alt="Episode 8"></a></td>
+<td valign="top">
+
+### EP 08 · We Hired an AI Sales Rep and Became Its Manager
+`2026-08-12` · 43:04
+
+▶ [Watch](https://www.youtube.com/watch?v=4HFkfenI5dA) · 🎧 [Apple](https://podcasts.apple.com/us/podcast/redacted-episode-8-we-hired-an-ai-sales-rep-and/id1774076494?i=1000782891421) · [Spotify](https://open.spotify.com/show/1aMrtX8LnIU2w5yoT4uolb) · 📝 [Show notes](https://www.tweenertimes.com/p/redacted-episode-8-we-hired-an-ai) · 📁 [Files](008/)
+
+</td>
+</tr>
+<tr>
 <td width="300"><a href="https://www.youtube.com/watch?v=8Z68Ptd0Ha0"><img src="https://img.youtube.com/vi/8Z68Ptd0Ha0/hqdefault.jpg" width="300" alt="Episode 7"></a></td>
 <td valign="top">
 
@@ -103,7 +114,7 @@ This repo is the **companion**. Full show notes live with each episode (linked b
 </tr>
 </table>
 
-> Folders `010/`–`015/` are pre-created stubs. `008/` and `009/` are staged for launch but aren't in the Episodes list until they go live. Each stub gets a title-slug name once the episode airs.
+> Folders `011/`–`015/` are pre-created stubs. `009/` and `010/` are staged for launch but aren't in the Episodes list until they go live. Each stub gets a title-slug name once the episode airs.
 
 ## Want to be on the show?
 

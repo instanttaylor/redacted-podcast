@@ -26,7 +26,12 @@ This is the **Go-live finalize** process noted at the end of [`process/post-reco
 
 3. **Fill the folder README** (`00N…/README.md`): replace its `_TBD_`s — Runtime, Full show notes URL, Apple link, YouTube link.
 
-4. **Add the row to the root README "Episodes" list.** The Episodes list is **launched-only**, so `prep-recorded-episode` deliberately did NOT create this row — you add it now, at launch, **newest-first at the top of the `<table>`**, fully populated (no `_TBD_`). Then fix the stub-folder note beneath the table if it still lists this folder as a stub. Template:
+4. **Rename the folder to its title slug.** At launch the episode has a title, so `00N/` becomes `00N-title-slug/` — this is what keeps the repo root consistent (`001-rebuild-business-with-ai`, `006-ai-ification-engine`). Skipping it is how `007/` and `008/` shipped live as bare numbers and sat that way until 2026-08-19. Build the slug from the memorable phrase in the title, not the whole title: 3-5 lowercase words, hyphenated (Ep 8 "We Hired an AI Sales Rep and Became Its Manager" → `008-ai-sales-rep`). Propose the slug to Taylor before renaming. Then:
+   - `git mv 00N 00N-slug` (use `git mv`, so history follows)
+   - **Fix every cross-link in the repo.** `grep -rn "](00N/" --include='*.md' .` and update each hit — at minimum the `📁 [Files](00N/)` link in the root README's Episodes row. Re-run the grep after to confirm zero dangling refs.
+   - GitHub does **not** redirect renamed paths, so any external link to the old folder breaks (Substack posts, guest emails). Taylor accepted that tradeoff for consistency (2026-08-19); mention it, don't re-litigate it.
+
+5. **Add the row to the root README "Episodes" list.** The Episodes list is **launched-only**, so `prep-recorded-episode` deliberately did NOT create this row — you add it now, at launch, **newest-first at the top of the `<table>`**, fully populated (no `_TBD_`). Then fix the stub-folder note beneath the table if it still lists this folder as a stub. Template:
 
    ```html
    <tr>
@@ -42,7 +47,7 @@ This is the **Go-live finalize** process noted at the end of [`process/post-reco
    </tr>
    ```
 
-5. **Confirm before commit.** Show `git diff` and verify `grep -c _TBD_ 00N…/README.md` is `0` (or that any remaining `_TBD_` is genuinely still unavailable). On approval, commit straight to `main`.
+6. **Confirm before commit.** Show `git diff` and verify `grep -c _TBD_ 00N…/README.md` is `0` (or that any remaining `_TBD_` is genuinely still unavailable). On approval, commit straight to `main`.
 
 ## Boundaries
 - **Spotify stays the show-level link.** Per-episode Spotify URLs need the Spotify Web API with OAuth (not wired up). Don't invent a per-episode Spotify link.

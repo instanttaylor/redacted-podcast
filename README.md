@@ -31,7 +31,7 @@ This repo is the **companion**. Full show notes live with each episode (linked b
 ### EP 08 · We Hired an AI Sales Rep and Became Its Manager
 `2026-08-12` · 43:04
 
-▶ [Watch](https://www.youtube.com/watch?v=4HFkfenI5dA) · 🎧 [Apple](https://podcasts.apple.com/us/podcast/redacted-episode-8-we-hired-an-ai-sales-rep-and/id1774076494?i=1000782891421) · [Spotify](https://open.spotify.com/show/1aMrtX8LnIU2w5yoT4uolb) · 📝 [Show notes](https://www.tweenertimes.com/p/redacted-episode-8-we-hired-an-ai) · 📁 [Files](008/)
+▶ [Watch](https://www.youtube.com/watch?v=4HFkfenI5dA) · 🎧 [Apple](https://podcasts.apple.com/us/podcast/redacted-episode-8-we-hired-an-ai-sales-rep-and/id1774076494?i=1000782891421) · [Spotify](https://open.spotify.com/show/1aMrtX8LnIU2w5yoT4uolb) · 📝 [Show notes](https://www.tweenertimes.com/p/redacted-episode-8-we-hired-an-ai) · 📁 [Files](008-ai-sales-rep/)
 
 </td>
 </tr>
@@ -42,7 +42,7 @@ This repo is the **companion**. Full show notes live with each episode (linked b
 ### EP 07 · How a Marketer with One Broken Assembly Class Built a Lead-Gen Tool Solo
 `2026-07-29` · 43:05
 
-▶ [Watch](https://www.youtube.com/watch?v=8Z68Ptd0Ha0) · 🎧 [Apple](https://podcasts.apple.com/us/podcast/redacted-episode-7-how-a-marketer-with-one/id1774076494?i=1000778828740) · [Spotify](https://open.spotify.com/show/1aMrtX8LnIU2w5yoT4uolb) · 📝 [Show notes](https://www.tweenertimes.com/p/redacted-episode-7-how-a-marketer) · 📁 [Files](007/)
+▶ [Watch](https://www.youtube.com/watch?v=8Z68Ptd0Ha0) · 🎧 [Apple](https://podcasts.apple.com/us/podcast/redacted-episode-7-how-a-marketer-with-one/id1774076494?i=1000778828740) · [Spotify](https://open.spotify.com/show/1aMrtX8LnIU2w5yoT4uolb) · 📝 [Show notes](https://www.tweenertimes.com/p/redacted-episode-7-how-a-marketer) · 📁 [Files](007-lead-gen-tool-solo/)
 
 </td>
 </tr>
@@ -114,7 +114,7 @@ This repo is the **companion**. Full show notes live with each episode (linked b
 </tr>
 </table>
 
-> Folders `011/`–`015/` are pre-created stubs. `009/` and `010/` are staged for launch but aren't in the Episodes list until they go live. Each stub gets a title-slug name once the episode airs.
+> Folders `012/`–`015/` are pre-created stubs. `009/`, `010/`, and `011/` are staged for launch but aren't in the Episodes list until they go live. Each gets a title-slug name once the episode airs.
 
 ## Want to be on the show?
 

@@ -30,9 +30,11 @@ This is **Process 2** in [`process/post-recording-process-map.md`](../../../proc
 
 5. **Write the folder README.** Create `00N/` (or rename to `00N-slug/` only once there's a title). Use the template below. Fill knowns; mark unknowns `_TBD_`.
 
-6. **Do NOT add a row to the root README "Episodes" list.** That list is **launched episodes only** — an unlaunched episode never appears there. The Episodes-list row gets added later, at launch, by `finalize-launched-episode`. Prep only creates the `00N/` folder + its README. If the stub-folder note below the table names this folder, keep it accurate.
+6. **Update the guest grid graphic.** `assets/guest-grid.svg` maps guests by **specialty (rows)** x **team size (columns)** and is embedded in both `README.md` and `want-to-be-on.md`. Recorded guests go on at prep time — this graphic does **not** follow the launched-only rule the Episodes list does (Taylor, 2026-08-19). Pick the cell from the guest's own words (the team size they gave you, the function they described), and propose it before editing — placement is Taylor's call. To fill a cell, swap the dashed `OPEN` group for the filled variant: same `rect` x/y/width/height, but `fill-opacity="0.18"`, `stroke-opacity="0.9"`, `stroke-width="2"`, no `stroke-dasharray`; then two centered `<text>` lines at `rect y + 22.2` (guest name, size 14, weight 800, fill `#FCFDF8`) and `rect y + 40.7` (`EP NN`, size 11, weight 700, fill `#E2741F`). Re-render with `python3 tools/render_svg.py` (needs `resvg`), eyeball the PNG, and commit the `.svg` and regenerated `.png` together.
 
-7. **Confirm before commit.** Show `git diff` and `grep -rn _TBD_ 00N*`. On approval, commit straight to `main` (this repo works directly on main). Otherwise leave it staged.
+7. **Do NOT add a row to the root README "Episodes" list.** That list is **launched episodes only** — an unlaunched episode never appears there. The Episodes-list row gets added later, at launch, by `finalize-launched-episode`. Prep only creates the `00N/` folder + its README. If the stub-folder note below the table names this folder, keep it accurate.
+
+8. **Confirm before commit.** Show `git diff` and `grep -rn _TBD_ 00N*`. On approval, commit straight to `main` (this repo works directly on main). Otherwise leave it staged.
 
 ## Folder README template
 

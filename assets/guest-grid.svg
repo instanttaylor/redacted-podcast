@@ -108,11 +108,14 @@
 
   <g>
     <rect x="224.0" y="372.2" width="241.0" height="50.2" rx="6"
-          fill="#E2741F" fill-opacity="0.05"
-          stroke="#E2741F" stroke-opacity="0.5" stroke-width="1.5" stroke-dasharray="5 5"/>
-    <text x="344.5" y="402.4" text-anchor="middle"
-          font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13" font-weight="600"
-          letter-spacing="3" fill="#E2741F" fill-opacity="0.85">OPEN</text>
+          fill="#E2741F" fill-opacity="0.18"
+          stroke="#E2741F" stroke-opacity="0.9" stroke-width="2"/>
+    <text x="344.5" y="394.4" text-anchor="middle"
+          font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14" font-weight="800"
+          letter-spacing="1" fill="#FCFDF8">JOSH GUTER</text>
+    <text x="344.5" y="412.9" text-anchor="middle"
+          font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" font-weight="700"
+          letter-spacing="2" fill="#E2741F">EP 09</text>
   </g>
 
   <g>
@@ -222,11 +225,14 @@
 
   <g>
     <rect x="224.0" y="559.0" width="241.0" height="50.2" rx="6"
-          fill="#E2741F" fill-opacity="0.05"
-          stroke="#E2741F" stroke-opacity="0.5" stroke-width="1.5" stroke-dasharray="5 5"/>
-    <text x="344.5" y="589.1" text-anchor="middle"
-          font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13" font-weight="600"
-          letter-spacing="3" fill="#E2741F" fill-opacity="0.85">OPEN</text>
+          fill="#E2741F" fill-opacity="0.18"
+          stroke="#E2741F" stroke-opacity="0.9" stroke-width="2"/>
+    <text x="344.5" y="581.2" text-anchor="middle"
+          font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14" font-weight="800"
+          letter-spacing="1" fill="#FCFDF8">PARKER MAYES</text>
+    <text x="344.5" y="599.7" text-anchor="middle"
+          font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" font-weight="700"
+          letter-spacing="2" fill="#E2741F">EP 10</text>
   </g>
 
   <g>
@@ -296,11 +302,14 @@
 
   <g>
     <rect x="224.0" y="683.5" width="241.0" height="50.2" rx="6"
-          fill="#E2741F" fill-opacity="0.05"
-          stroke="#E2741F" stroke-opacity="0.5" stroke-width="1.5" stroke-dasharray="5 5"/>
-    <text x="344.5" y="713.6" text-anchor="middle"
-          font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13" font-weight="600"
-          letter-spacing="3" fill="#E2741F" fill-opacity="0.85">OPEN</text>
+          fill="#E2741F" fill-opacity="0.18"
+          stroke="#E2741F" stroke-opacity="0.9" stroke-width="2"/>
+    <text x="344.5" y="705.7" text-anchor="middle"
+          font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14" font-weight="800"
+          letter-spacing="1" fill="#FCFDF8">BEN ECKERSON</text>
+    <text x="344.5" y="724.2" text-anchor="middle"
+          font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" font-weight="700"
+          letter-spacing="2" fill="#E2741F">EP 11</text>
   </g>
 
   <g>

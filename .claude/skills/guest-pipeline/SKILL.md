@@ -54,10 +54,33 @@ Each stage's draft, grounded in how Taylor actually writes. Keep them short. Bra
 | **Contacted** (host-sourced, no reply yet) | **First contact:** link the `want-to-be-on.md` page (public URL above); soften — *"You don't need to 'pitch' us. Just shoot back a few answers to those 3 questions and we'll chat more."* | Contacted |
 | **Replied** (guest sent role/team + demo menu) | **Propose dates + narrow topic:** offer the **next 5 `Open` slots from the Slots tab** — *"Right now I'm booking for [the 5 open slot dates]. We record around 10am ET and keep it under an hour. Any of those work?"* + help pick **one** demo. Never invent a date; if there are no Open slots, ask Taylor to add some. Surface the demo-topic candidates in chat first and draft the one Taylor picks — never write your own pick into the email. **If this is the first Taylor→guest email (e.g. a host-sourced yes), include the `want-to-be-on.md` link too.** | Date proposed |
 | **Date proposed** (guest picked a date) | **Confirm:** *"Amazing, let's get you on the schedule for [date]. Invite incoming and I'll get you more info soon."* (Taylor sends the actual Google Calendar invite — the skill doesn't.) Then **flip that Slot `Open → Booked`** with the guest attached + Ep #, and stamp the guest's Recording date — confirm both writes with Taylor first. | Booked |
-| **Booked** (invite accepted) | **Prep:** the `guest-prep.md` rundown — pick one thing / it doesn't have to work; the 6 talking-point notes; the day-of runbook; how redacting works; the StreamYard guest-instructions link (`https://support.streamyard.com/hc/en-us/articles/360043291612-Guest-instructions`). **No pre-calls — all guest comms via email.** | Prepped |
-| **Prepped**, ~24h before record | **Reminder:** confirm the date by weekday + number and **include the studio link** — *"All good to record Wednesday the 12th at 10am ET? Here's the [studio link]. It's also in the calendar invite."* Name the date rather than saying "tomorrow": the guest's prep email may predate a reschedule and still show the old date. Put the link in the email rather than only pointing at the invite. **Sourcing the link:** it's the `Location` on the Google Calendar event and it appears in the guest's `Accepted: …` email in the inbox, so pull it from there and have Taylor confirm it matches the live invite (a rescheduled event keeps its original acceptance email, so the copy on file can predate the move). | Reminded |
+| **Booked** (invite accepted) | **Prep:** send the canonical copy below verbatim. It carries **three** links, the studio link among them — so this email is blocked until Taylor confirms the studio link (see sourcing under **Prepped**). **No pre-calls — all guest comms via email.** | Prepped |
+| **Prepped**, ~24h before record | **Reminder:** confirm the date by weekday + number and **include the studio link** — *"All good to record Wednesday the 12th at 10am ET? Here's the [studio link]. It's also in the calendar invite."* Name the date rather than saying "tomorrow": the guest's prep email may predate a reschedule and still show the old date. Put the link in the email rather than only pointing at the invite. **Sourcing the link (applies from the prep email onward):** it's the `Location` on the Google Calendar event and it appears in the guest's `Accepted: …` email in the inbox, so pull it from there and have Taylor confirm it matches the live invite (a rescheduled event keeps its original acceptance email, so the copy on file can predate the move). It is a **standing room URL, not per-recording** — the same link has been reused across guests, so a stale copy can look right and still be wrong. | Reminded |
 | **Reminded**, morning of | **Day-of link:** send the canonical copy below verbatim, with the StreamYard studio link from Taylor. | Recorded (after the record) |
 | **Recorded** | **Post-record thank-you:** thanks; *"it'll hit the feeds in a few weeks"*; share the `00N/` show-notes folder for review (*"LMK if you see anything you want changed"*); optional meetup. | Follow-up done |
+
+### Prep email — canonical copy
+
+Taylor's wording (2026-08-25). Send it as-is; swap the greeting, the date, and the studio link. **Three** hyperlinks, all anchor text: "What to expect on recording day" → `guest-prep.md`, "recording link to StreamYard" → the studio link, "guest instructions" → StreamYard support. `htmlBody` only, no plain-text `body`. The five list items are a real `<ul>`.
+
+```
+Hey [First],
+
+Here's the prep for [Month Dth]. Let me know if you have any questions about it.
+
+What to expect on recording day:
+- Bring your show and tell. It does not have to work. We want to understand the story behind why you did it. Maybe a little bit about the broken parts along the way.
+- While you walk us through it, we're thinking about where it fits in the business, how it's built at a high level, why you built it, how the AI part evolves, and what you're doing differently next time. We'll probably ask questions about this as you go.
+- Here's your recording link to StreamYard you'll use on the day of (also in the invite), which is where you'll record from. Chrome works best.
+- Here are some guest instructions. We'll chat for a few minutes and then record for 30 to 45 minutes.
+- If anything you don't want on the screen share shows up, tell us in the moment and we'll blur it or cut it.
+
+The recording isn't live.
+
+Taylor
+```
+
+The studio link now ships at **prep**, not on the morning of. Don't write "we'll email you the link that morning" — it's already in their hands by then; the reminder and day-of emails repeat it.
 
 ### Day-of email — canonical copy
 

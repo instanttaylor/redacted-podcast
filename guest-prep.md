@@ -4,28 +4,20 @@ So you're coming on the show. This is the "what actually happens" doc. If you ha
 
 The whole premise is the **messy middle**, so the bar is low on polish and high on honesty. A couple things up front:
 
-- **Pick one thing to show.** One tool, one workflow, one automation. Better to go deep on one than skim three.
-- **It does not have to work.** Whatever state it's in — half-built, demo breaks live, abandoned — that's completely fine. Often *more* interesting.
+- **Bring your show and tell.** It does not have to work. We want to understand the story behind why you did it. Maybe a little bit about the broken parts along the way.
 - David and Taylor don't tell each other what we're each going to show that week, so it stays unscripted — and you don't need to script or over-prepare either.
 
 ## What we're usually thinking about
 
-You don't have to hit all of these — it's just the stuff in our heads while you walk us through your thing:
-
-1. **The bigger context** — where this fits into the org.
-2. **How it's built** — very high level. *Never code.*
-3. **Why** you decided to build it that way.
-4. **What problems** you had (or still have) with it.
-5. **How the AI piece evolved** — most people start with too much or too little and have to go back and forth to find the balance.
-6. **How what you learned** is shaping your future projects.
+While you walk us through it, we're thinking about where it fits in the business, how it's built at a high level (never code), why you built it, how the AI part evolves, and what you're doing differently next time. We'll probably ask questions about this as you go.
 
 ## Day-of
 
-1. We'll email you the link to the online studio (we use **StreamYard** — **Chrome works best**; here are their [guest instructions](https://support.streamyard.com/hc/en-us/articles/360043291612-Guest-instructions)). That join link is unique to your recording and comes in the email.
-2. On the day, just go to that link and we'll chat for a few minutes before we start.
+1. Your studio link comes with the prep email, and it's in the calendar invite too (we use **StreamYard** — **Chrome works best**; here are their [guest instructions](https://support.streamyard.com/hc/en-us/articles/360043291612-Guest-instructions)).
+2. On the day, just go to that link and we'll chat for a few minutes before we start. We record for 30 to 45 minutes.
 3. Taylor hits record, David does an intro, and we introduce you.
 4. When we're done, hang out for a minute until your side of the recording finishes uploading (usually fast).
-5. Our editor stitches everything together with our notes and drafts the episode.
+5. Our editor stitches everything together with our notes and drafts the episode. The recording isn't live.
 
 ## How redacting works
 

@@ -71,11 +71,14 @@
 
   <g>
     <rect x="224.0" y="310.0" width="241.0" height="50.2" rx="6"
-          fill="#E2741F" fill-opacity="0.05"
-          stroke="#E2741F" stroke-opacity="0.5" stroke-width="1.5" stroke-dasharray="5 5"/>
-    <text x="344.5" y="340.1" text-anchor="middle"
-          font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13" font-weight="600"
-          letter-spacing="3" fill="#E2741F" fill-opacity="0.85">OPEN</text>
+          fill="#E2741F" fill-opacity="0.18"
+          stroke="#E2741F" stroke-opacity="0.9" stroke-width="2"/>
+    <text x="344.5" y="332.2" text-anchor="middle"
+          font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14" font-weight="800"
+          letter-spacing="1" fill="#FCFDF8">CRAIG BROWN</text>
+    <text x="344.5" y="350.7" text-anchor="middle"
+          font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" font-weight="700"
+          letter-spacing="2" fill="#E2741F">EP 13</text>
   </g>
 
   <g>

@@ -114,7 +114,7 @@ This repo is the **companion**. Full show notes live with each episode (linked b
 </tr>
 </table>
 
-> Folders `012/`–`015/` are pre-created stubs. `009/`, `010/`, and `011/` are staged for launch but aren't in the Episodes list until they go live. Each gets a title-slug name once the episode airs.
+> Folders `014/` and `015/` are pre-created stubs. `009/` through `013/` are staged for launch but aren't in the Episodes list until they go live. Each gets a title-slug name once the episode airs.
 
 ## Want to be on the show?
 
